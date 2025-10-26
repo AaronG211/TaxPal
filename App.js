@@ -7,6 +7,9 @@ const { useState, useEffect, useRef } = React;
 const API_KEY = window.API_KEY || "";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
 
+// Log API key status (for debugging - remove in production)
+console.log("API Key loaded:", API_KEY ? "Yes (length: " + API_KEY.length + ")" : "No - Please check your .env file");
+
 // --- AI System Prompts ---
 const PLAN_SYSTEM_PROMPT = `You are 'TaxPal,' a friendly and professional AI assistant. Your goal is to help users with low financial literacy understand their U.S. tax filing requirements.
 You are NOT a licensed tax advisor or CPA. You MUST include a disclaimer in your summary that your advice is for informational purposes ONLY and the user should consult a qualified professional for financial advice.
@@ -138,15 +141,23 @@ const fetchGeminiResponse = async (userQuery, systemPrompt, history = null, sche
 
   try {
     const result = await fetchWithBackoff(API_URL, options);
+    
+    // Check for API errors in the response
+    if (result.error) {
+      console.error("API Error:", result.error);
+      throw new Error(result.error.message || "API returned an error");
+    }
+    
     const part = result.candidates?.[0]?.content?.parts?.[0];
     if (part && part.text) {
       return part.text;
     } else {
+      console.error("Invalid response structure:", result);
       throw new Error("Invalid response structure from API.");
     }
   } catch (error) {
     console.error("Error fetching Gemini response:", error);
-    return "Sorry, I encountered an error trying to get a response. Please try again.";
+    throw error; // Re-throw to be handled by caller
   }
 };
 
@@ -967,6 +978,8 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
         TAX_PLAN_SCHEMA
       );
       
+      console.log("Raw AI response:", responseText);
+      
       // The response *should* be a JSON string
       const parsedResponse = JSON.parse(responseText);
       setAiResponse(parsedResponse);
@@ -974,7 +987,20 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
       
     } catch (err) {
       console.error("Failed to parse AI response:", err);
-      setError("The AI response was not in the correct format. Please try again.");
+      
+      // Provide more specific error messages
+      let errorMessage = "An error occurred. ";
+      if (err.message && err.message.includes("API")) {
+        errorMessage += err.message;
+        if (!API_KEY) {
+          errorMessage += " Please check that your API key is set in the .env file.";
+        }
+      } else if (err instanceof SyntaxError) {
+        errorMessage += "The AI returned invalid JSON. ";
+      }
+      errorMessage += " Please try again.";
+      
+      setError(errorMessage);
       setStep('form'); // Go back to form on error
     }
   };
