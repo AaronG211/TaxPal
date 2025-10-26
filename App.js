@@ -1,8 +1,10 @@
 const { useState, useEffect, useRef } = React;
 
 // --- API Configuration ---
-// The API key is an empty string and will be populated by the environment.
-const API_KEY = "";
+// SECURITY NOTE: In production, this should be stored in environment variables or a backend service.
+// Never commit API keys to version control!
+// The API key is loaded from the .env file via env-loader.js
+const API_KEY = window.API_KEY || "";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
 
 // --- AI System Prompts ---

@@ -1,0 +1,13 @@
+# API Keys and Sensitive Data
+.env
+
+# Editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
