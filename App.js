@@ -22,6 +22,43 @@ const translations = {
     tellUsAbout: "Tell us about yourself",
     formDescription: "This information will help us create your personalized tax plan.",
     createPlan: "Create My Tax Plan",
+    // Form Fields
+    nationality: "Nationality (Country of Citizenship)",
+    nationalityPlaceholder: "e.g., USA, China, India",
+    state: "What U.S. State do you live in?",
+    selectState: "Select a state",
+    notUSResident: "Not a U.S. Resident",
+    yearsInUS: "How many years (in total) have you lived in the U.S.?",
+    jobStatus: "Current Job Status",
+    employed: "Employed",
+    selfEmployed: "Self-Employed",
+    unemployed: "Unemployed",
+    retired: "Retired",
+    isStudent: "Are you currently a student?",
+    hasSSN: "Do you have a U.S. Social Security Number (SSN) or ITIN?",
+    housingStatus: "What is your housing status?",
+    rent: "Rent",
+    own: "Own",
+    ownsCar: "Do you own a car?",
+    incomeRange: "What is your annual income range?",
+    filingStatus: "What is your filing status?",
+    single: "Single",
+    marriedFilingJointly: "Married Filing Jointly",
+    marriedFilingSeparately: "Married Filing Separately",
+    headOfHousehold: "Head of Household",
+    dependents: "How many dependents do you have?",
+    hadJobChange: "Did you change jobs last year?",
+    itemizedPreviousYear: "Did you itemize deductions last year?",
+    incomeSources: "What are your income sources? (Select all that apply)",
+    w2Salary: "W-2 Salary (from an employer)",
+    selfEmployment: "Self-Employment / Freelance (1099-NEC/MISC)",
+    stockInvestments: "Stock Investments (Dividends/Capital Gains)",
+    rentalIncome: "Rental Income",
+    cryptocurrency: "Cryptocurrency",
+    other: "Other",
+    specifics: "Any other specific details about your tax situation?",
+    yes: "Yes",
+    no: "No",
     // Results
     taxPlan: "Your Personalized Tax Plan",
     quickReminder: "A quick reminder:",
@@ -55,6 +92,43 @@ const translations = {
     tellUsAbout: "Cuéntanos sobre ti",
     formDescription: "Esta información nos ayudará a crear tu plan fiscal personalizado.",
     createPlan: "Crear Mi Plan Fiscal",
+    // Form Fields
+    nationality: "Nacionalidad (País de Ciudadanía)",
+    nationalityPlaceholder: "ej., USA, China, India",
+    state: "¿En qué estado de EE.UU. vives?",
+    selectState: "Selecciona un estado",
+    notUSResident: "No soy residente de EE.UU.",
+    yearsInUS: "¿Cuántos años (en total) has vivido en EE.UU.?",
+    jobStatus: "Estado Laboral Actual",
+    employed: "Empleado",
+    selfEmployed: "Trabajador Independiente",
+    unemployed: "Desempleado",
+    retired: "Jubilado",
+    isStudent: "¿Eres actualmente estudiante?",
+    hasSSN: "¿Tienes un Número de Seguro Social (SSN) o ITIN de EE.UU.?",
+    housingStatus: "¿Cuál es tu situación de vivienda?",
+    rent: "Alquiler",
+    own: "Propia",
+    ownsCar: "¿Tienes un automóvil?",
+    incomeRange: "¿Cuál es tu rango de ingresos anuales?",
+    filingStatus: "¿Cuál es tu estado civil para impuestos?",
+    single: "Soltero",
+    marriedFilingJointly: "Casado Declarando Conjuntamente",
+    marriedFilingSeparately: "Casado Declarando por Separado",
+    headOfHousehold: "Jefe de Familia",
+    dependents: "¿Cuántos dependientes tienes?",
+    hadJobChange: "¿Cambiaste de trabajo el año pasado?",
+    itemizedPreviousYear: "¿Detallaste deducciones el año pasado?",
+    incomeSources: "¿Cuáles son tus fuentes de ingresos? (Selecciona todas las que apliquen)",
+    w2Salary: "Salario W-2 (de un empleador)",
+    selfEmployment: "Trabajo Independiente / Freelance (1099-NEC/MISC)",
+    stockInvestments: "Inversiones en Acciones (Dividendos/Ganancias de Capital)",
+    rentalIncome: "Ingresos por Alquiler",
+    cryptocurrency: "Criptomonedas",
+    other: "Otro",
+    specifics: "¿Algún otro detalle específico sobre tu situación fiscal?",
+    yes: "Sí",
+    no: "No",
     // Results
     taxPlan: "Tu Plan Fiscal Personalizado",
     quickReminder: "Un recordatorio rápido:",
@@ -88,6 +162,43 @@ const translations = {
     tellUsAbout: "告诉我们关于您的信息",
     formDescription: "这些信息将帮助我们为您创建个性化的税务计划。",
     createPlan: "创建我的税务计划",
+    // Form Fields
+    nationality: "国籍（公民身份国家）",
+    nationalityPlaceholder: "例如：美国、中国、印度",
+    state: "您居住在美国哪个州？",
+    selectState: "选择一个州",
+    notUSResident: "非美国居民",
+    yearsInUS: "您在美国总共居住了多少年？",
+    jobStatus: "当前工作状态",
+    employed: "受雇",
+    selfEmployed: "自雇",
+    unemployed: "失业",
+    retired: "退休",
+    isStudent: "您目前是学生吗？",
+    hasSSN: "您有美国社会安全号码（SSN）或ITIN吗？",
+    housingStatus: "您的住房状况是什么？",
+    rent: "租房",
+    own: "自有",
+    ownsCar: "您有车吗？",
+    incomeRange: "您的年收入范围是多少？",
+    filingStatus: "您的报税身份是什么？",
+    single: "单身",
+    marriedFilingJointly: "已婚联合报税",
+    marriedFilingSeparately: "已婚分别报税",
+    headOfHousehold: "户主",
+    dependents: "您有多少个受抚养人？",
+    hadJobChange: "您去年换工作了吗？",
+    itemizedPreviousYear: "您去年是否逐项扣除？",
+    incomeSources: "您的收入来源是什么？（选择所有适用的）",
+    w2Salary: "W-2工资（来自雇主）",
+    selfEmployment: "自雇/自由职业（1099-NEC/MISC）",
+    stockInvestments: "股票投资（股息/资本收益）",
+    rentalIncome: "租金收入",
+    cryptocurrency: "加密货币",
+    other: "其他",
+    specifics: "关于您的税务情况还有其他具体细节吗？",
+    yes: "是",
+    no: "否",
     // Results
     taxPlan: "您的个性化税务计划",
     quickReminder: "快速提醒：",
@@ -315,7 +426,7 @@ const IntroScreen = ({ onStart, t }) => {
 /**
  * Step 2: Intake Form
  */
-const IntakeForm = ({ onSubmit, onLoading }) => {
+const IntakeForm = ({ onSubmit, onLoading, t }) => {
   const [formData, setFormData] = useState({
     nationality: '',
     state: '',
@@ -360,51 +471,51 @@ const IntakeForm = ({ onSubmit, onLoading }) => {
   ];
   
   const incomeOptions = [
-    "W-2 Salary (from an employer)",
-    "Self-Employment / Freelance (1099-NEC/MISC)",
-    "Stock Investments (Dividends/Capital Gains)",
-    "Rental Income",
-    "Cryptocurrency",
-    'Other'
+    t.w2Salary,
+    t.selfEmployment,
+    t.stockInvestments,
+    t.rentalIncome,
+    t.cryptocurrency,
+    t.other
   ];
 
   return React.createElement('div', { className: "max-w-3xl mx-auto p-4 md:p-8" },
     React.createElement('h2', { className: "text-4xl font-bold text-slate-900 dark:text-white mb-6" },
-      "Tell us about yourself"
+      t.tellUsAbout
     ),
     React.createElement('p', { className: "text-xl text-slate-600 dark:text-slate-300 mb-8 leading-relaxed" },
-      "This information will help us create your personalized tax plan."
+      t.formDescription
     ),
     React.createElement('form', { onSubmit: handleSubmit, className: "space-y-6" },
       // Personal Info Grid
       React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
         React.createElement(FormInput, {
-          label: "Nationality (Country of Citizenship)",
+          label: t.nationality,
           name: "nationality",
           value: formData.nationality,
           onChange: handleChange,
           icon: "👤",
-          placeholder: "e.g., USA, China, India",
+          placeholder: t.nationalityPlaceholder,
           required: true
         }),
         React.createElement(FormSelect, {
-          label: "What U.S. State do you live in?",
+          label: t.state,
           name: "state",
           value: formData.state,
           onChange: handleChange,
           icon: "📍",
           required: true
         },
-          React.createElement('option', { value: "" }, "Select a state"),
+          React.createElement('option', { value: "" }, t.selectState),
           usStates.map(state => React.createElement('option', { key: state, value: state }, state)),
-          React.createElement('option', { value: "N/A" }, "Not a U.S. Resident")
+          React.createElement('option', { value: "N/A" }, t.notUSResident)
         )
       ),
 
       // Conditional Nationality Input
       formData.nationality && formData.nationality.toLowerCase() !== 'usa' && formData.nationality.toLowerCase() !== 'us' && 
       React.createElement(FormInput, {
-        label: "How many years (in total) have you lived in the U.S.?",
+        label: t.yearsInUS,
         name: "yearsInUS",
         type: "number",
         value: formData.yearsInUS,
@@ -416,61 +527,61 @@ const IntakeForm = ({ onSubmit, onLoading }) => {
       // Status Grid
       React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
         React.createElement(FormSelect, {
-          label: "Current Job Status",
+          label: t.jobStatus,
           name: "jobStatus",
           value: formData.jobStatus,
           onChange: handleChange,
           icon: "💼"
         },
-          React.createElement('option', null, "Employed"),
-          React.createElement('option', null, "Self-Employed"),
-          React.createElement('option', null, "Unemployed"),
-          React.createElement('option', null, "Retired")
+          React.createElement('option', null, t.employed),
+          React.createElement('option', null, t.selfEmployed),
+          React.createElement('option', null, t.unemployed),
+          React.createElement('option', null, t.retired)
         ),
         
         React.createElement(FormRadio, {
-          label: "Are you currently a student?",
+          label: t.isStudent,
           name: "isStudent",
           value: formData.isStudent,
           onChange: handleChange,
           icon: "🎓",
-          options: ['Yes', 'No']
+          options: [t.yes, t.no]
         })
       ),
 
       // SSN Radio
       React.createElement(FormRadio, {
-        label: "Do you have a U.S. Social Security Number (SSN) or ITIN?",
+        label: t.hasSSN,
         name: "hasSSN",
         value: formData.hasSSN,
         onChange: handleChange,
         icon: "👤",
-        options: ['Yes', 'No']
+        options: [t.yes, t.no]
       }),
 
       // Assets Grid
       React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
         React.createElement(FormRadio, {
-          label: "What is your housing status?",
+          label: t.housingStatus,
           name: "housingStatus",
           value: formData.housingStatus,
           onChange: handleChange,
           icon: "🏠",
-          options: ['Rent', 'Own']
+          options: [t.rent, t.own]
         }),
         React.createElement(FormRadio, {
-          label: "Do you own or lease a car?",
+          label: t.ownsCar,
           name: "ownsCar",
           value: formData.ownsCar,
           onChange: handleChange,
           icon: "🚗",
-          options: ['Yes', 'No']
+          options: [t.yes, t.no]
         })
       ),
 
       // Income Range
       React.createElement(FormSelect, {
-        label: "What is your approximate annual income?",
+        label: t.incomeRange,
         name: "incomeRange",
         value: formData.incomeRange,
         onChange: handleChange,
@@ -488,23 +599,23 @@ const IntakeForm = ({ onSubmit, onLoading }) => {
 
       // Filing Status
       React.createElement(FormSelect, {
-        label: "What is your filing status?",
+        label: t.filingStatus,
         name: "filingStatus",
         value: formData.filingStatus,
         onChange: handleChange,
         icon: "👫"
       },
-        React.createElement('option', { value: "Single" }, "Single"),
-        React.createElement('option', { value: "Married Filing Jointly" }, "Married Filing Jointly"),
-        React.createElement('option', { value: "Married Filing Separately" }, "Married Filing Separately"),
-        React.createElement('option', { value: "Head of Household" }, "Head of Household"),
+        React.createElement('option', { value: "Single" }, t.single),
+        React.createElement('option', { value: "Married Filing Jointly" }, t.marriedFilingJointly),
+        React.createElement('option', { value: "Married Filing Separately" }, t.marriedFilingSeparately),
+        React.createElement('option', { value: "Head of Household" }, t.headOfHousehold),
         React.createElement('option', { value: "Qualifying Widow(er)" }, "Qualifying Widow(er)")
       ),
 
       // Dependents Grid
       React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
         React.createElement(FormSelect, {
-          label: "How many dependents do you have?",
+          label: t.dependents,
           name: "dependents",
           value: formData.dependents,
           onChange: handleChange,
@@ -519,28 +630,28 @@ const IntakeForm = ({ onSubmit, onLoading }) => {
         ),
         
         React.createElement(FormRadio, {
-          label: "Did you change jobs last year?",
+          label: t.hadJobChange,
           name: "hadJobChange",
           value: formData.hadJobChange,
           onChange: handleChange,
           icon: "💼",
-          options: ['Yes', 'No']
+          options: [t.yes, t.no]
         })
       ),
 
       // Itemized Deduction Question
       React.createElement(FormRadio, {
-        label: "Did you itemize deductions last year?",
+        label: t.itemizedPreviousYear,
         name: "itemizedPreviousYear",
         value: formData.itemizedPreviousYear,
         onChange: handleChange,
         icon: "📝",
-        options: ['Yes', 'No', "Don't remember"]
+        options: [t.yes, t.no, "Don't remember"]
       }),
 
       // Income Sources
       React.createElement(FormCheckboxGroup, {
-        label: "What were your sources of income last year?",
+        label: t.incomeSources,
         icon: "💰",
         options: incomeOptions,
         selected: formData.incomeSources,
@@ -549,7 +660,7 @@ const IntakeForm = ({ onSubmit, onLoading }) => {
 
       // Specifics Text Area
       React.createElement(FormTextArea, {
-        label: "Anything else we should know?",
+        label: t.specifics,
         name: "specifics",
         value: formData.specifics,
         onChange: handleChange,
@@ -563,7 +674,7 @@ const IntakeForm = ({ onSubmit, onLoading }) => {
           type: "submit",
           className: "bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-xl text-xl shadow-lg transition-transform transform hover:scale-105 flex items-center justify-end ml-auto"
         },
-          "Create My Tax Plan",
+          t.createPlan,
           React.createElement('span', { className: "w-6 h-6 ml-3" }, '✨')
         )
       )
@@ -660,7 +771,7 @@ const FormTextArea = ({ label, name, value, onChange, icon, ...props }) => React
 /**
  * Step 3: Loading Screen
  */
-const LoadingScreen = () => React.createElement('div', { className: "flex flex-col items-center justify-center min-h-screen p-20 text-center relative overflow-hidden" },
+const LoadingScreen = ({ t }) => React.createElement('div', { className: "flex flex-col items-center justify-center min-h-screen p-20 text-center relative overflow-hidden" },
   // Animated background - using calm colors
   React.createElement('div', { className: "absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50" }),
   React.createElement('div', { className: "absolute top-1/4 left-1/4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" }),
@@ -676,10 +787,10 @@ const LoadingScreen = () => React.createElement('div', { className: "flex flex-c
       )
     ),
     React.createElement('h2', { className: "text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-700 mt-6 mb-4" },
-      "Analyzing Your Situation..."
+      t.analyzing
     ),
     React.createElement('p', { className: "text-2xl text-slate-600 mb-8" },
-      "Our AI is creating your personalized tax plan"
+      t.creatingPlan
     ),
     // Loading dots - using blue theme
     React.createElement('div', { className: "flex justify-center gap-3" },
@@ -1041,7 +1152,7 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
 /**
  * Step 4: Results Screen
  */
-const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) => {
+const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail, t }) => {
   if (!response) {
     return React.createElement('div', { className: "text-center p-8" },
       React.createElement('div', { className: "w-12 h-12 mx-auto text-red-500" }, '⚠️'),
@@ -1063,7 +1174,7 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) =
   return React.createElement('div', { className: "max-w-4xl mx-auto p-4 md:p-8 space-y-8" },
     // 1. The Plan
     React.createElement('h2', { className: "text-4xl font-bold text-slate-900 dark:text-white" },
-      "Your Personalized Tax Plan"
+      t.taxPlan
     ),
     
     // Disclaimer - using soft yellow
@@ -1071,7 +1182,7 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) =
       React.createElement('div', { className: "flex" },
         React.createElement('div', { className: "w-6 h-6 mr-3 flex-shrink-0" }, '⚠️'),
         React.createElement('p', { className: "text-lg" },
-          React.createElement('strong', { className: "font-bold" }, "A quick reminder:"), ` ${disclaimer.replace('Please remember, ', '')}`
+          React.createElement('strong', { className: "font-bold" }, t.quickReminder), ` ${disclaimer.replace('Please remember, ', '')}`
         )
       )
     ),
@@ -1079,7 +1190,7 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) =
     // Summary
     React.createElement('div', { className: "bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg" },
       React.createElement('h3', { className: "text-2xl font-semibold text-slate-900 dark:text-white mb-4" },
-        "Your Tax Summary"
+        t.taxSummary
       ),
       React.createElement('p', { className: "text-lg text-slate-700 dark:text-slate-300 leading-relaxed" },
         analysisSummary
@@ -1091,7 +1202,7 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) =
       React.createElement('div', { className: "bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg" },
         React.createElement('h3', { className: "flex items-center text-2xl font-semibold text-slate-900 dark:text-white mb-6" },
           React.createElement('span', { className: "w-7 h-7 mr-3 text-blue-500" }, '📄'),
-          "Required Forms"
+          t.requiredForms
         ),
         React.createElement('ul', { className: "space-y-5" },
           requiredForms.length > 0 ? 
@@ -1100,7 +1211,7 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) =
                 `${form.formId}: ${form.formTitle}`
               ),
               React.createElement('p', { className: "text-base text-slate-600 dark:text-slate-300 mt-2" },
-                React.createElement('strong', { className: "text-slate-700 dark:text-slate-200" }, "Why:"), ` ${form.reason}`
+                React.createElement('strong', { className: "text-slate-700 dark:text-slate-200" }, t.why), ` ${form.reason}`
               )
             )) :
             React.createElement('p', { className: "text-lg text-slate-600 dark:text-slate-300" },
@@ -1113,7 +1224,7 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) =
       React.createElement('div', { className: "bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg" },
         React.createElement('h3', { className: "flex items-center text-2xl font-semibold text-slate-900 dark:text-white mb-6" },
           React.createElement('span', { className: "w-7 h-7 mr-3 text-green-500" }, '✅'),
-          "Your Next Steps"
+          t.nextSteps
         ),
         React.createElement('div', { className: "space-y-4" },
           nextSteps.map((step, index) => React.createElement('button', {
@@ -1139,10 +1250,10 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) =
     React.createElement('div', { className: "bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg mt-10" },
       React.createElement('h3', { className: "flex items-center text-3xl font-semibold text-slate-900 dark:text-white mb-6" },
         React.createElement('span', { className: "w-8 h-8 mr-3 text-blue-500" }, '📄'),
-        "Form Filing Center"
+        t.filingCenter
       ),
       React.createElement('p', { className: "text-xl text-slate-600 dark:text-slate-300 mb-8" },
-        "Click on a form to get line-by-line help from our AI assistant."
+        t.filingCenterDesc
       ),
       
       requiredForms.length > 0 ? 
@@ -1157,7 +1268,7 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) =
           ))
         ) :
         React.createElement('p', { className: "text-lg text-slate-600 dark:text-slate-300 text-center p-6 bg-slate-50 dark:bg-slate-700 rounded-xl" },
-          "No specific forms were identified for you. If you think this is an error, please start over."
+          t.noForms
         )
     ),
 
@@ -1166,7 +1277,7 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) =
       React.createElement('button', {
         onClick: onReset,
         className: "text-lg text-slate-500 dark:text-slate-400 hover:underline hover:text-slate-700 dark:hover:text-slate-200"
-      }, "Start over with a new plan")
+      }, t.startOver)
     )
   );
 };
@@ -1284,15 +1395,16 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
       case 'intro':
         return React.createElement(IntroScreen, { onStart: handleStart, t: t });
       case 'form':
-        return React.createElement(IntakeForm, { onSubmit: handleSubmit, onLoading: handleLoading });
+        return React.createElement(IntakeForm, { onSubmit: handleSubmit, onLoading: handleLoading, t: t });
       case 'loading':
-        return React.createElement(LoadingScreen);
+        return React.createElement(LoadingScreen, { t: t });
       case 'results':
         return React.createElement(ResultsScreen, {
           response: aiResponse,
           onReset: handleStart,
           onStartFiling: handleStartFiling,
-          onShowStepDetail: handleShowStepDetail
+          onShowStepDetail: handleShowStepDetail,
+          t: t
         });
       case 'filing':
         return React.createElement(FormFilingPage, {
@@ -1329,7 +1441,7 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
           React.createElement('button', {
             onClick: handleStart,
             className: "px-6 py-3 text-lg font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-colors"
-          }, "New Plan")
+          }, t.newPlan)
         )
       )
     ),
