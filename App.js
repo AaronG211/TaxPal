@@ -58,13 +58,14 @@ const fetchWithBackoff = async (url, options, retries = 5, delay = 1000) => {
  * Function to call our secure chat backend.
  * @param {string} userQuery - The user's prompt.
  * @param {Array<object>} history - The chat history.
+ * @param {string|null} pdfBase64 - Optional base64 encoded PDF file.
  * @returns {Promise<string>} - The text part of the AI's response.
  */
-const fetchChatReply = async (userQuery, history) => {
+const fetchChatReply = async (userQuery, history, pdfBase64 = null) => {
   const options = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userQuery, history })
+    body: JSON.stringify({ userQuery, history, pdfBase64 })
   };
 
   try {
@@ -647,8 +648,21 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
     ];
 
     try {
-      // Call our new secure chat function
-      const aiResponseText = await fetchChatReply(userInput, apiHistory);
+      // If PDF is uploaded, convert it to base64 and send it
+      let pdfBase64 = null;
+      if (pdfFile) {
+        pdfBase64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64String = reader.result.split(',')[1];
+            resolve(base64String);
+          };
+          reader.readAsDataURL(pdfFile);
+        });
+      }
+      
+      // Call our new secure chat function with PDF data
+      const aiResponseText = await fetchChatReply(userInput, apiHistory, pdfBase64);
       
       const newAiMessage = { role: "model", parts: [{ text: aiResponseText }] };
       setChatHistory(prev => [...prev, newAiMessage]);
@@ -752,9 +766,15 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
       
       // Right Side: Chat Assistant
       React.createElement('div', { className: "lg:w-1/2 bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md flex flex-col" },
-        React.createElement('h3', { className: "flex items-center text-xl font-semibold text-slate-900 dark:text-white mb-4" },
-          React.createElement('span', { className: "w-6 h-6 mr-3 text-purple-500" }, '❓'),
-          "Form Assistant"
+        React.createElement('div', { className: "flex items-center justify-between mb-4" },
+          React.createElement('h3', { className: "flex items-center text-xl font-semibold text-slate-900 dark:text-white" },
+            React.createElement('span', { className: "w-6 h-6 mr-3 text-purple-500" }, '❓'),
+            "Form Assistant"
+          ),
+          pdfFile && React.createElement('div', { className: "flex items-center text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full" },
+            React.createElement('span', { className: "mr-1" }, '👁️'),
+            "Can see PDF"
+          )
         ),
         
         // Chat History

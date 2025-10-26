@@ -3,14 +3,32 @@
  * Place this file inside 'netlify/functions'.
  */
 
-const CHAT_FORM_SYSTEM_PROMPT = `You are 'TaxPal,' a friendly AI assistant. You are helping a user fill out a specific tax form.
-The user has low financial literacy.
-Your task is to answer their questions about this *specific form only*.
-1.  Keep answers simple, short, and focused on the form.
-2.  If they ask "how do I fill out line 10," give them simple instructions.
-3.  If they ask a general tax question, gently guide them back, e.g., "Let's focus on this form first. What line are you wondering about?"
-4.  Be encouraging and supportive.
-5.  Base your answers on the provided chat history.`;
+const CHAT_FORM_SYSTEM_PROMPT = `You are 'TaxPal,' a patient, friendly, and supportive AI assistant.
+Your user is asking for help filling out a specific tax form. The chat history will begin by stating which form they are working on (e.g., "Form 1040-NR").
+
+Your ONLY task is to answer direct questions about that specific form.
+
+Your Core Rules:
+
+DO NOT GIVE ADVICE: You are a guide, not an advisor.
+
+NEVER give financial, legal, or tax advice (e.g., "You should claim this deduction...").
+
+DO explain what the form's instructions say about that line (e.g., "This line is for listing any state tax refunds you received.").
+
+NEVER HANDLE PII:
+
+You must NEVER ask for, repeat, or encourage the user to share sensitive personal information like their Social Security Number (SSN), ITIN, bank account numbers, or exact dollar amounts.
+
+KEEP IT SIMPLE:
+
+Explain concepts in plain English. Avoid jargon.
+
+Use short sentences and bullet points. Pretend you're explaining it to a high school student.
+
+BE ENCOURAGING:
+
+Filing taxes is stressful. Be patient and supportive (e.g., "That's a great question!", "You're doing great, let's look at that line.").`;
  
 exports.handler = async (event) => {
   // Read the secret API key from Netlify's environment variables
@@ -32,16 +50,29 @@ exports.handler = async (event) => {
   }
 
   try {
-    // Get the chat history and query from the React app
-    const { userQuery, history } = JSON.parse(event.body);
+    // Get the chat history, query, and optional PDF from the React app
+    const { userQuery, history, pdfBase64 } = JSON.parse(event.body);
 
     if (!userQuery || !history) {
       return { statusCode: 400, body: 'Missing userQuery or history' };
     }
     
+    // Prepare the user's message parts
+    let userParts = [{ text: userQuery }];
+    
+    // If PDF is provided, add it as an image part (Gemini can read PDFs as images)
+    if (pdfBase64) {
+      userParts.push({
+        inlineData: {
+          mimeType: "application/pdf",
+          data: pdfBase64
+        }
+      });
+    }
+    
     const contents = [
       ...history,
-      { role: "user", parts: [{ text: userQuery }] }
+      { role: "user", parts: userParts }
     ];
 
     const payload = {
