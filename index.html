@@ -1,0 +1,42 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TaxPal - AI Tax Assistant</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            animation: {
+              'spin': 'spin 1s linear infinite',
+              'bounce': 'bounce 1s infinite',
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- React & ReactDOM via CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- Your JavaScript component file -->
+    <script src="./App.js"></script>
+
+    <script>
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(React.createElement(App));
+    </script>
+  </body>
+</html>
