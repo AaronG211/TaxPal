@@ -312,11 +312,11 @@ const fetchWithBackoff = async (url, options, retries = 5, delay = 1000) => {
  * @param {string|null} pdfBase64 - Optional base64 encoded PDF file.
  * @returns {Promise<string>} - The text part of the AI's response.
  */
-const fetchChatReply = async (userQuery, history, pdfBase64 = null) => {
+const fetchChatReply = async (userQuery, history, pdfBase64 = null, language = 'en') => {
   const options = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userQuery, history, pdfBase64 })
+    body: JSON.stringify({ userQuery, history, pdfBase64, language })
   };
 
   try {
@@ -853,7 +853,7 @@ const StepDetailModal = ({ step, onClose }) => React.createElement('div', { clas
 /**
  * New Component: Form Filing Page
  */
-const FormFilingPage = ({ form, onBack }) => {
+const FormFilingPage = ({ form, onBack, language }) => {
   const [chatHistory, setChatHistory] = useState([]);
   const [userInput, setUserInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
@@ -991,7 +991,7 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
       }
       
       // Call our new secure chat function with PDF data
-      const aiResponseText = await fetchChatReply(userInput, apiHistory, pdfBase64);
+      const aiResponseText = await fetchChatReply(userInput, apiHistory, pdfBase64, language);
       
       const newAiMessage = { role: "model", parts: [{ text: aiResponseText }] };
       setChatHistory(prev => [...prev, newAiMessage]);
@@ -1344,7 +1344,7 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userQuery })
+        body: JSON.stringify({ userQuery, language })
       };
       
       const response = await fetchWithBackoff("/.netlify/functions/getTaxPlan", options);
@@ -1412,7 +1412,8 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
           onBack: () => {
             setStep('results');
             setCurrentForm(null);
-          }
+          },
+          language: language
         });
       default:
         return React.createElement(IntroScreen, { onStart: handleStart, t: t });
