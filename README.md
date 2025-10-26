@@ -26,7 +26,7 @@ hackathon demo
 
 **Note:** If you don't have a `.env` file yet, just create one and add:
 ```
-API_KEY=AIzaSyCUQzoy_yi9UGr7daQr6yBVNWNxzuXvyfI
+
 ```
 
 ### Security Best Practices
