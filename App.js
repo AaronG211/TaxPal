@@ -27,7 +27,18 @@ const fetchWithBackoff = async (url, options, retries = 5, delay = 1000) => {
     try {
       const response = await fetch(url, options);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Try to get error details from response body
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorBody = await response.json();
+          if (errorBody.error) {
+            errorMessage = errorBody.error;
+          }
+        } catch (e) {
+          // If can't parse JSON, use status text
+          errorMessage = `HTTP error! status: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
       // We change this: return the raw response first, then decide if .json() or .text()
       return response;

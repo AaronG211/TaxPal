@@ -1,0 +1,11 @@
+[build]
+  command = "echo 'No build needed'"
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
+  
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

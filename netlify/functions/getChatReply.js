@@ -15,6 +15,16 @@ Your task is to answer their questions about this *specific form only*.
 exports.handler = async (event) => {
   // Read the secret API key from Netlify's environment variables
   const API_KEY = process.env.GEMINI_API_KEY;
+  
+  // Check if API key is set
+  if (!API_KEY) {
+    console.error("GEMINI_API_KEY environment variable is not set");
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "API key not configured. Please set GEMINI_API_KEY in Netlify environment variables." })
+    };
+  }
+  
   const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
 
   if (event.httpMethod !== 'POST') {
@@ -70,7 +80,13 @@ exports.handler = async (event) => {
     console.error("Error in serverless function:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message })
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        error: error.message || "An error occurred processing your request",
+        details: error.toString()
+      })
     };
   }
 };
