@@ -91,31 +91,80 @@ const fetchChatReply = async (userQuery, history) => {
 /**
  * Step 1: Welcome Screen
  */
-const IntroScreen = ({ onStart }) => React.createElement('div', { className: "text-center p-8 max-w-2xl mx-auto" },
-  React.createElement('div', { className: "w-16 h-16 mx-auto text-blue-500" }, '✨'),
-  React.createElement('h1', { className: "text-4xl font-bold text-slate-900 dark:text-white mt-4" },
-    "Welcome to Your AI TaxPal"
-  ),
-  React.createElement('p', { className: "text-lg text-slate-600 dark:text-slate-300 mt-4" },
-    "Filing taxes can be confusing. We're here to help!"
-  ),
-  React.createElement('p', { className: "text-md text-slate-600 dark:text-slate-300 mt-4" },
-    "Answer a few simple questions, and our AI will help you understand what forms you need and guide you through the next steps."
-  ),
-  React.createElement('div', { className: "mt-8 p-4 bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500 rounded-lg text-yellow-800 dark:text-yellow-200 text-left" },
-    React.createElement('div', { className: "flex" },
-      React.createElement('div', { className: "w-6 h-6 mr-3 flex-shrink-0" }, '⚠️'),
-      React.createElement('p', null,
-        React.createElement('strong', { className: "font-bold" }, "Important:"), " I am an AI assistant, not a tax professional. This is for informational purposes only. Please consult a qualified accountant or tax advisor for financial advice."
+const IntroScreen = ({ onStart }) => React.createElement('div', { className: "min-h-screen flex items-center justify-center p-8 relative overflow-hidden" },
+  // Animated background
+  React.createElement('div', { className: "absolute inset-0 gradient-bg opacity-10" }),
+  React.createElement('div', { className: "absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-blue-50" }),
+  
+  // Floating decorative elements
+  React.createElement('div', { className: "absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" }),
+  React.createElement('div', { className: "absolute bottom-20 right-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float", style: { animationDelay: '2s' } }),
+  
+  // Main content
+  React.createElement('div', { className: "relative z-10 text-center max-w-4xl mx-auto animate-fadeIn" },
+    // Logo/Icon with animation
+    React.createElement('div', { className: "mb-8 relative inline-block" },
+      React.createElement('div', { className: "w-24 h-24 mx-auto bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl shadow-2xl flex items-center justify-center transform rotate-6 hover:rotate-12 transition-transform duration-300" },
+        React.createElement('span', { className: "text-5xl" }, '📋')
+      )
+    ),
+    
+    // Heading with gradient text
+    React.createElement('h1', { className: "text-6xl md:text-7xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 leading-tight" },
+      "Your Personal",
+      React.createElement('br', null),
+      "AI TaxPal"
+    ),
+    
+    // Subtitle
+    React.createElement('p', { className: "text-xl md:text-2xl text-slate-600 mb-4 font-medium" },
+      "Making Tax Filing Simple & Stress-Free"
+    ),
+    React.createElement('p', { className: "text-lg text-slate-500 mb-8 max-w-2xl mx-auto" },
+      "Get personalized tax guidance powered by AI. We'll help you understand what forms you need and guide you through every step."
+    ),
+    
+    // Feature highlights
+    React.createElement('div', { className: "flex flex-wrap justify-center gap-4 mb-10" },
+      React.createElement('div', { className: "flex items-center bg-white/80 backdrop-blur-sm px-5 py-2 rounded-full shadow-md border border-purple-100" },
+        React.createElement('span', { className: "text-xl mr-2" }, '🤖'),
+        React.createElement('span', { className: "text-sm font-medium text-slate-700" }, 'AI-Powered')
+      ),
+      React.createElement('div', { className: "flex items-center bg-white/80 backdrop-blur-sm px-5 py-2 rounded-full shadow-md border border-purple-100" },
+        React.createElement('span', { className: "text-xl mr-2" }, '⚡'),
+        React.createElement('span', { className: "text-sm font-medium text-slate-700" }, 'Quick & Easy')
+      ),
+      React.createElement('div', { className: "flex items-center bg-white/80 backdrop-blur-sm px-5 py-2 rounded-full shadow-md border border-purple-100" },
+        React.createElement('span', { className: "text-xl mr-2" }, '🎯'),
+        React.createElement('span', { className: "text-sm font-medium text-slate-700" }, 'Personalized')
+      )
+    ),
+    
+    // CTA Button
+    React.createElement('button', {
+      onClick: onStart,
+      className: "group relative bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-12 rounded-2xl text-lg shadow-2xl shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 hover:shadow-purple-600/60 flex items-center justify-center mx-auto mb-8"
+    },
+      "Get Started",
+      React.createElement('svg', { className: "ml-2 w-5 h-5 transform group-hover:translate-x-1 transition-transform", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M13 7l5 5m0 0l-5 5m5-5H6" })
+      )
+    ),
+    
+    // Disclaimer
+    React.createElement('div', { className: "bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 shadow-lg max-w-2xl mx-auto" },
+      React.createElement('div', { className: "flex items-start" },
+        React.createElement('div', { className: "w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mr-4 mt-1" },
+          React.createElement('span', { className: "text-white text-xl" }, '⚠️')
+        ),
+        React.createElement('div', null,
+          React.createElement('h3', { className: "font-bold text-amber-900 mb-2" }, "Important Disclaimer"),
+          React.createElement('p', { className: "text-sm text-amber-800 leading-relaxed" },
+            "I am an AI assistant, not a tax professional. This is for informational purposes only. Please consult a qualified accountant or tax advisor for financial advice."
+          )
+        )
       )
     )
-  ),
-  React.createElement('button', {
-    onClick: onStart,
-    className: "mt-10 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transition-transform transform hover:scale-105 flex items-center justify-center mx-auto"
-  },
-    "Get Started",
-    React.createElement('span', { className: "w-5 h-5 ml-2" }, '→')
   )
 );
 
@@ -306,8 +355,8 @@ const IntakeForm = ({ onSubmit, onLoading }) => {
 
 // --- Form Helper Components ---
 const FormInput = ({ label, name, value, onChange, icon, ...props }) => React.createElement('div', null,
-  React.createElement('label', { htmlFor: name, className: "flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" },
-    icon && React.createElement('span', { className: "w-4 h-4 mr-2" }, icon),
+  React.createElement('label', { htmlFor: name, className: "flex items-center text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" },
+    icon && React.createElement('span', { className: "text-xl mr-2" }, icon),
     label
   ),
   React.createElement('input', {
@@ -315,14 +364,14 @@ const FormInput = ({ label, name, value, onChange, icon, ...props }) => React.cr
     name: name,
     value: value,
     onChange: onChange,
-    className: "w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
+    className: "w-full p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md",
     ...props
   })
 );
 
 const FormSelect = ({ label, name, value, onChange, icon, children, ...props }) => React.createElement('div', null,
-  React.createElement('label', { htmlFor: name, className: "flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" },
-    icon && React.createElement('span', { className: "w-4 h-4 mr-2" }, icon),
+  React.createElement('label', { htmlFor: name, className: "flex items-center text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" },
+    icon && React.createElement('span', { className: "text-xl mr-2" }, icon),
     label
   ),
   React.createElement('select', {
@@ -330,7 +379,7 @@ const FormSelect = ({ label, name, value, onChange, icon, children, ...props }) 
     name: name,
     value: value,
     onChange: onChange,
-    className: "w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none",
+    className: "w-full p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md appearance-none cursor-pointer",
     ...props
   }, children)
 );
@@ -393,13 +442,33 @@ const FormTextArea = ({ label, name, value, onChange, icon, ...props }) => React
 /**
  * Step 3: Loading Screen
  */
-const LoadingScreen = () => React.createElement('div', { className: "flex flex-col items-center justify-center p-20 text-center" },
-  React.createElement('div', { className: "w-16 h-16 text-blue-500 animate-spin" }, '⏳'),
-  React.createElement('h2', { className: "text-2xl font-bold text-slate-900 dark:text-white mt-6" },
-    "Analyzing Your Situation..."
-  ),
-  React.createElement('p', { className: "text-lg text-slate-600 dark:text-slate-300 mt-2" },
-    "Our AI is creating your personalized tax plan."
+const LoadingScreen = () => React.createElement('div', { className: "flex flex-col items-center justify-center min-h-screen p-20 text-center relative overflow-hidden" },
+  // Animated background
+  React.createElement('div', { className: "absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50" }),
+  React.createElement('div', { className: "absolute top-1/4 left-1/4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" }),
+  
+  // Content
+  React.createElement('div', { className: "relative z-10" },
+    // Animated icon
+    React.createElement('div', { className: "mb-8 relative" },
+      React.createElement('div', { className: "w-24 h-24 mx-auto bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl shadow-2xl flex items-center justify-center animate-bounce" },
+        React.createElement('svg', { className: "w-12 h-12 text-white animate-spin", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+          React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" })
+        )
+      )
+    ),
+    React.createElement('h2', { className: "text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 mt-6 mb-4" },
+      "Analyzing Your Situation..."
+    ),
+    React.createElement('p', { className: "text-xl text-slate-600 mb-8" },
+      "Our AI is creating your personalized tax plan"
+    ),
+    // Loading dots
+    React.createElement('div', { className: "flex justify-center gap-2" },
+      React.createElement('div', { className: "w-3 h-3 bg-purple-600 rounded-full animate-bounce", style: { animationDelay: '0s' } }),
+      React.createElement('div', { className: "w-3 h-3 bg-pink-600 rounded-full animate-bounce", style: { animationDelay: '0.2s' } }),
+      React.createElement('div', { className: "w-3 h-3 bg-blue-600 rounded-full animate-bounce", style: { animationDelay: '0.4s' } })
+    )
   )
 );
 
@@ -985,13 +1054,19 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
     }
   };
 
-  return React.createElement('div', { className: "min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300" },
-    React.createElement('header', { className: "bg-white dark:bg-slate-800 shadow-sm" },
+  return React.createElement('div', { className: "min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300" },
+    step !== 'intro' && React.createElement('header', { className: "bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg shadow-lg border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50" },
       React.createElement('nav', { className: "max-w-7xl mx-auto p-4 flex justify-between items-center" },
-        React.createElement('div', { className: "flex items-center space-x-2" },
-          React.createElement('span', { className: "w-8 h-8 text-blue-500" }, '✨'),
-          React.createElement('span', { className: "text-2xl font-bold" }, "TaxPal")
-        )
+        React.createElement('div', { className: "flex items-center space-x-3" },
+          React.createElement('div', { className: "w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-md" },
+            React.createElement('span', { className: "text-2xl" }, '📋')
+          ),
+          React.createElement('span', { className: "text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600" }, "TaxPal")
+        ),
+        React.createElement('button', {
+          onClick: handleStart,
+          className: "px-4 py-2 text-sm font-semibold text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+        }, "New Plan")
       )
     ),
     React.createElement('main', null,
