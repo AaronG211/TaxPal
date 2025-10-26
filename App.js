@@ -111,10 +111,10 @@ const IntroScreen = ({ onStart }) => React.createElement('div', { className: "mi
     ),
     
     // Heading with gradient text - softer, more professional
-    React.createElement('h1', { className: "text-6xl md:text-7xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-700 leading-tight" },
-      "Your Personal",
+    React.createElement('h1', { className: "text-5xl md:text-6xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-700 leading-tight" },
+      "TaxPal, Your Personal",
       React.createElement('br', null),
-      "AI TaxPal"
+      "Tax Filing AI Assistant"
     ),
     
     // Subtitle - larger, more accessible font
