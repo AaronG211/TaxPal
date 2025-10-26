@@ -716,12 +716,13 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
         ),
         React.createElement('div', {
           ref: dropAreaRef,
-          className: `border-4 border-dashed border-slate-300 dark:border-slate-600 rounded-lg h-96 flex items-center justify-center text-slate-400 dark:text-slate-500 text-center p-4 relative transition-colors ${
+          className: `border-4 ${pdfFile ? 'border-slate-300 dark:border-slate-600' : 'border-dashed border-slate-300 dark:border-slate-600'} rounded-xl flex items-center justify-center text-slate-400 dark:text-slate-500 text-center relative transition-colors overflow-auto ${
             isDragging ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-400' : ''
-          } ${pdfFile ? 'border-solid p-0' : ''}`,
+          } ${pdfFile ? 'p-4 min-h-fit' : 'h-96 p-4'}`,
           onDragOver: handleDragOver,
           onDragLeave: handleDragLeave,
-          onDrop: handleDrop
+          onDrop: handleDrop,
+          style: pdfFile ? {} : { minHeight: '400px' }
         },
           !pdfFile && React.createElement('div', { className: "flex flex-col items-center pointer-events-none" },
             React.createElement('div', { className: `w-16 h-16 mb-4 ${isDragging ? 'text-blue-500' : 'text-slate-400'}` }, '📁'),
@@ -742,9 +743,9 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
               "Loading PDF viewer..."
             )
           ),
-          React.createElement('canvas', {
+          pdfFile && React.createElement('canvas', {
             ref: canvasRef,
-            className: `${pdfFile ? 'block' : 'hidden'} max-w-full`
+            className: "block max-w-full mx-auto shadow-lg rounded-lg"
           })
         )
       ),
