@@ -183,6 +183,11 @@ const IntakeForm = ({ onSubmit, onLoading }) => {
     housingStatus: 'Rent',
     ownsCar: 'No',
     yearsInUS: '',
+    incomeRange: '',
+    filingStatus: 'Single',
+    dependents: '0',
+    hadJobChange: 'No',
+    itemizedPreviousYear: 'No',
     specifics: ''
   });
 
@@ -319,6 +324,76 @@ const IntakeForm = ({ onSubmit, onLoading }) => {
           options: ['Yes', 'No']
         })
       ),
+
+      // Income Range
+      React.createElement(FormSelect, {
+        label: "What is your approximate annual income?",
+        name: "incomeRange",
+        value: formData.incomeRange,
+        onChange: handleChange,
+        icon: "💰",
+        required: true
+      },
+        React.createElement('option', { value: "" }, "Select income range"),
+        React.createElement('option', { value: "Under $12,000" }, "Under $12,000"),
+        React.createElement('option', { value: "$12,000 - $24,999" }, "$12,000 - $24,999"),
+        React.createElement('option', { value: "$25,000 - $49,999" }, "$25,000 - $49,999"),
+        React.createElement('option', { value: "$50,000 - $99,999" }, "$50,000 - $99,999"),
+        React.createElement('option', { value: "$100,000 - $200,000" }, "$100,000 - $200,000"),
+        React.createElement('option', { value: "Over $200,000" }, "Over $200,000")
+      ),
+
+      // Filing Status
+      React.createElement(FormSelect, {
+        label: "What is your filing status?",
+        name: "filingStatus",
+        value: formData.filingStatus,
+        onChange: handleChange,
+        icon: "👫"
+      },
+        React.createElement('option', { value: "Single" }, "Single"),
+        React.createElement('option', { value: "Married Filing Jointly" }, "Married Filing Jointly"),
+        React.createElement('option', { value: "Married Filing Separately" }, "Married Filing Separately"),
+        React.createElement('option', { value: "Head of Household" }, "Head of Household"),
+        React.createElement('option', { value: "Qualifying Widow(er)" }, "Qualifying Widow(er)")
+      ),
+
+      // Dependents Grid
+      React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
+        React.createElement(FormSelect, {
+          label: "How many dependents do you have?",
+          name: "dependents",
+          value: formData.dependents,
+          onChange: handleChange,
+          icon: "👶"
+        },
+          React.createElement('option', { value: "0" }, "0"),
+          React.createElement('option', { value: "1" }, "1"),
+          React.createElement('option', { value: "2" }, "2"),
+          React.createElement('option', { value: "3" }, "3"),
+          React.createElement('option', { value: "4" }, "4"),
+          React.createElement('option', { value: "5+" }, "5 or more")
+        ),
+        
+        React.createElement(FormRadio, {
+          label: "Did you change jobs last year?",
+          name: "hadJobChange",
+          value: formData.hadJobChange,
+          onChange: handleChange,
+          icon: "💼",
+          options: ['Yes', 'No']
+        })
+      ),
+
+      // Itemized Deduction Question
+      React.createElement(FormRadio, {
+        label: "Did you itemize deductions last year?",
+        name: "itemizedPreviousYear",
+        value: formData.itemizedPreviousYear,
+        onChange: handleChange,
+        icon: "📝",
+        options: ['Yes', 'No', "Don't remember"]
+      }),
 
       // Income Sources
       React.createElement(FormCheckboxGroup, {
@@ -988,9 +1063,14 @@ function App() {
 - Nationality: ${data.nationality}
 ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US: ${data.yearsInUS || 'Not specified'}` : ''}
 - State: ${data.state}
+- Filing Status: ${data.filingStatus}
+- Annual Income: ${data.incomeRange}
+- Number of Dependents: ${data.dependents}
 - Job Status: ${data.jobStatus}
+- Changed Jobs Last Year: ${data.hadJobChange}
 - Has SSN/ITIN: ${data.hasSSN}
 - Is a student: ${data.isStudent}
+- Itemized Deductions Last Year: ${data.itemizedPreviousYear}
 - Housing Status: ${data.housingStatus}
 - Owns a car: ${data.ownsCar}
 - Income Sources: ${data.incomeSources.join(', ') || 'None listed'}
