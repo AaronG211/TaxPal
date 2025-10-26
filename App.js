@@ -275,7 +275,6 @@ const IntakeForm = ({ onSubmit, onLoading }) => {
         },
           React.createElement('option', null, "Employed"),
           React.createElement('option', null, "Self-Employed"),
-          React.createElement('option', null, "Student"),
           React.createElement('option', null, "Unemployed"),
           React.createElement('option', null, "Retired")
         ),
@@ -689,7 +688,8 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
     }
   };
   
-  const formSearchUrl = `https://www.irs.gov/forms-pubs/find-form-by-number-or-name?search=${encodeURIComponent(form.formId)}`;
+  // Use Google search for IRS forms since the direct IRS form search is unreliable
+  const formSearchUrl = `https://www.google.com/search?q=IRS+${encodeURIComponent(form.formId)}+form+${encodeURIComponent(form.formTitle)}`;
 
   return React.createElement('div', { className: "max-w-7xl mx-auto p-4 md:p-8" },
     React.createElement('button', {
