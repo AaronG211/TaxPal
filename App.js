@@ -3,7 +3,7 @@ const { useState, useEffect, useRef } = React;
 // --- API Configuration ---
 // We no longer need the API Key or URL here.
 // All API calls will go to our secure serverless functions.
-console.log("App.js loaded. API calls will be proxied.");
+console.log("App.js loaded. API calls will be proxied. Language support enabled.");
 
 // --- Translations ---
 const translations = {
