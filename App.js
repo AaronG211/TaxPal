@@ -1,77 +1,16 @@
 const { useState, useEffect, useRef } = React;
 
 // --- API Configuration ---
-// SECURITY NOTE: In production, this should be stored in environment variables or a backend service.
-// Never commit API keys to version control!
-// The API key is loaded from the .env file via env-loader.js
-const API_KEY = window.API_KEY || "";
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+// We no longer need the API Key or URL here.
+// All API calls will go to our secure serverless functions.
+console.log("App.js loaded. API calls will be proxied.");
 
-// Log API key status (for debugging - remove in production)
-console.log("API Key loaded:", API_KEY ? "Yes (length: " + API_KEY.length + ")" : "No - Please check your .env file");
 
 // --- AI System Prompts ---
-const PLAN_SYSTEM_PROMPT = `You are 'TaxPal,' a friendly and professional AI assistant. Your goal is to help users with low financial literacy understand their U.S. tax filing requirements.
-You are NOT a licensed tax advisor or CPA. You MUST include a disclaimer in your summary that your advice is for informational purposes ONLY and the user should consult a qualified professional for financial advice.
-Your tone must be simple, encouraging, and clear. Avoid all complex jargon.
-The user will provide their information. Your task is to analyze it and return a JSON object with a plan.
-Focus on identifying the correct forms and next steps based on their specific situation (e.g., nationality, income types, SSN status, years in US).`;
+// These are now moved to the serverless functions.
+// We can remove PLAN_SYSTEM_PROMPT, CHAT_FORM_SYSTEM_PROMPT, and TAX_PLAN_SCHEMA
+// from this file to save space and keep secrets on the backend.
 
-const CHAT_FORM_SYSTEM_PROMPT = `You are 'TaxPal,' a friendly AI assistant. You are helping a user fill out a specific tax form.
-The user has low financial literacy.
-Your task is to answer their questions about this *specific form only*.
-1.  Keep answers simple, short, and focused on the form.
-2.  If they ask "how do I fill out line 10," give them simple instructions.
-3.  If they ask a general tax question, gently guide them back, e.g., "Let's focus on this form first. What line are you wondering about?"
-4.  Be encouraging and supportive.
-5.  Base your answers on the provided chat history.`;
-
-// --- AI Response JSON Schema ---
-// This schema forces the AI to return structured data for the initial plan.
-const TAX_PLAN_SCHEMA = {
-  type: "OBJECT",
-  properties: {
-    "disclaimer": {
-      "type": "STRING",
-      "description": "A mandatory, friendly disclaimer that this is not professional tax advice. Start with 'Please remember...'"
-    },
-    "analysisSummary": {
-      "type": "STRING",
-      "description": "A simple, one-paragraph summary of the user's tax situation in plain English."
-    },
-    "requiredForms": {
-      "type": "ARRAY",
-      "items": {
-        "type": "OBJECT",
-        "properties": {
-          "formId": { "type": "STRING", "description": "The official form name, e.g., 'Form 1040-NR'" },
-          "formTitle": { "type": "STRING", "description": "The full title of the form, e.g., 'U.S. Nonresident Alien Income Tax Return'" },
-          "reason": { "type": "STRING", "description": "A simple, one-sentence explanation of *why* this user needs this form based on their inputs." }
-        },
-        "required": ["formId", "formTitle", "reason"]
-      }
-    },
-    "nextSteps": {
-      "type": "ARRAY",
-      "items": {
-        "type": "OBJECT",
-        "properties": {
-          "stepTitle": { "type": "STRING", "description": "Short title for the step (e.g., 'Gather W-2s')" },
-          "stepDetails": { "type": "STRING", "description": "Detailed, multi-paragraph explanation of how to complete this step. Include full URLs (e.g., 'https://www.irs.gov/...') if helpful for things like tax treaties." }
-        },
-        "required": ["stepTitle", "stepDetails"]
-      }
-    },
-    "keyQuestions": {
-       "type": "ARRAY",
-       "items": {
-           "type": "STRING",
-           "description": "A list of clarifying questions to ask the user to further refine the process. e.g., 'Were you physically present in the U.S. for more than 183 days last year?'"
-       }
-    }
-  },
-  "required": ["disclaimer", "analysisSummary", "requiredForms", "nextSteps", "keyQuestions"]
-};
 
 // --- Utility Functions ---
 
@@ -81,7 +20,7 @@ const TAX_PLAN_SCHEMA = {
  * @param {object} options - The fetch options (method, headers, body).
  * @param {number} retries - Number of retries.
  * @param {number} delay - Initial delay in ms.
- * @returns {Promise<object>} - The JSON response.
+ * @returns {Promise<object>} - The raw fetch response.
  */
 const fetchWithBackoff = async (url, options, retries = 5, delay = 1000) => {
   for (let i = 0; i < retries; i++) {
@@ -90,7 +29,8 @@ const fetchWithBackoff = async (url, options, retries = 5, delay = 1000) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      return await response.json();
+      // We change this: return the raw response first, then decide if .json() or .text()
+      return response;
     } catch (error) {
       console.warn(`Attempt ${i + 1} failed. Retrying in ${delay}ms...`);
       if (i === retries - 1) {
@@ -104,59 +44,32 @@ const fetchWithBackoff = async (url, options, retries = 5, delay = 1000) => {
 };
 
 /**
- * Generic function to call the Gemini API.
+ * Function to call our secure chat backend.
  * @param {string} userQuery - The user's prompt.
- * @param {string} systemPrompt - The system instruction.
- * @param {Array<object> | null} history - The chat history (optional).
- * @param {object | null} schema - The JSON schema (optional).
+ * @param {Array<object>} history - The chat history.
  * @returns {Promise<string>} - The text part of the AI's response.
  */
-const fetchGeminiResponse = async (userQuery, systemPrompt, history = null, schema = null) => {
-  const contents = [];
-  
-  if (history) {
-    contents.push(...history);
-  }
-  contents.push({ role: "user", parts: [{ text: userQuery }] });
-
-  const payload = {
-    contents: contents,
-    systemInstruction: {
-      parts: [{ text: systemPrompt }]
-    },
-  };
-
-  if (schema) {
-    payload.generationConfig = {
-      responseMimeType: "application/json",
-      responseSchema: schema
-    };
-  }
-
+const fetchChatReply = async (userQuery, history) => {
   const options = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ userQuery, history })
   };
 
   try {
-    const result = await fetchWithBackoff(API_URL, options);
+    // 1. Call our new secure function
+    const response = await fetchWithBackoff("/.netlify/functions/getChatReply", options);
     
-    // Check for API errors in the response
-    if (result.error) {
-      console.error("API Error:", result.error);
-      throw new Error(result.error.message || "API returned an error");
-    }
+    // 2. Get the JSON response from our function
+    const result = await response.json(); 
     
-    const part = result.candidates?.[0]?.content?.parts?.[0];
-    if (part && part.text) {
-      return part.text;
+    if (result.reply) {
+      return result.reply;
     } else {
-      console.error("Invalid response structure:", result);
-      throw new Error("Invalid response structure from API.");
+      throw new Error(result.error || "Invalid response from chat function.");
     }
   } catch (error) {
-    console.error("Error fetching Gemini response:", error);
+    console.error("Error fetching chat reply:", error);
     throw error; // Re-throw to be handled by caller
   }
 };
@@ -636,6 +549,7 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory]);
 
+  // THIS IS THE MODIFIED CHAT SUBMIT HANDLER
   const handleChatSubmit = async (e) => {
     e.preventDefault();
     if (!userInput.trim()) return;
@@ -645,17 +559,26 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
     setChatHistory(prev => [...prev, newUserMessage]);
     setUserInput('');
 
+    // Prepare history for the API
     const apiHistory = [
       { role: "user", parts: [{ text: `I am asking about Form ${form.formId} (${form.formTitle}).` }]},
       { role: "model", parts: [{ text: "Got it. I'm ready to help you with that form. What's your question?" }]},
       ...chatHistory, 
-      newUserMessage
+      // newUserMessage is NOT added here, it's sent as the new userQuery
     ];
 
-    const aiResponseText = await fetchGeminiResponse(userInput, CHAT_FORM_SYSTEM_PROMPT, apiHistory, null);
+    try {
+      // Call our new secure chat function
+      const aiResponseText = await fetchChatReply(userInput, apiHistory);
+      
+      const newAiMessage = { role: "model", parts: [{ text: aiResponseText }] };
+      setChatHistory(prev => [...prev, newAiMessage]);
+    } catch (error) {
+      console.error("Failed to get chat reply:", error);
+      const errorMessage = { role: "model", parts: [{ text: "Sorry, I couldn't connect to the AI assistant. Please try again." }] };
+      setChatHistory(prev => [...prev, errorMessage]);
+    }
     
-    const newAiMessage = { role: "model", parts: [{ text: aiResponseText }] };
-    setChatHistory(prev => [...prev, newAiMessage]);
     setChatLoading(false);
   };
 
@@ -929,6 +852,7 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) =
   );
 };
 
+
 /**
  * Main App Component
  */
@@ -953,6 +877,7 @@ function App() {
     setStep('loading');
   };
 
+  // THIS IS THE MODIFIED SUBMIT HANDLER
   const handleSubmit = async (data) => {
     setFormData(data);
     setError(null);
@@ -971,16 +896,21 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
 - Other details: ${data.specifics || 'None'}`;
     
     try {
-      const responseText = await fetchGeminiResponse(
-        userQuery, 
-        PLAN_SYSTEM_PROMPT, 
-        null, 
-        TAX_PLAN_SCHEMA
-      );
+      // 1. Call our new secure Netlify Function
+      const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userQuery })
+      };
+      
+      const response = await fetchWithBackoff("/.netlify/functions/getTaxPlan", options);
+      
+      // 2. The response body is the JSON *text*
+      const responseText = await response.text();
       
       console.log("Raw AI response:", responseText);
       
-      // The response *should* be a JSON string
+      // 3. Now we parse the JSON text
       const parsedResponse = JSON.parse(responseText);
       setAiResponse(parsedResponse);
       setStep('results');
@@ -988,15 +918,12 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
     } catch (err) {
       console.error("Failed to parse AI response:", err);
       
-      // Provide more specific error messages
       let errorMessage = "An error occurred. ";
-      if (err.message && err.message.includes("API")) {
+      if (err instanceof SyntaxError) {
+        // This is the error you were seeing
+        errorMessage += "The AI response was not in the correct format.";
+      } else if (err.message) {
         errorMessage += err.message;
-        if (!API_KEY) {
-          errorMessage += " Please check that your API key is set in the .env file.";
-        }
-      } else if (err instanceof SyntaxError) {
-        errorMessage += "The AI returned invalid JSON. ";
       }
       errorMessage += " Please try again.";
       
@@ -1077,3 +1004,4 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
 
 // Export for use in HTML
 window.App = App;
+
