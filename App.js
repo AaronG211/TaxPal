@@ -5,6 +5,146 @@ const { useState, useEffect, useRef } = React;
 // All API calls will go to our secure serverless functions.
 console.log("App.js loaded. API calls will be proxied.");
 
+// --- Translations ---
+const translations = {
+  en: {
+    // Intro Screen
+    heading: "TaxPal, Your Personal\nTax Filing AI Assistant",
+    subtitle: "Making Tax Filing Simple & Stress-Free",
+    description: "Get personalized tax guidance powered by AI. We'll help you understand what forms you need and guide you through every step.",
+    aiPowered: "AI-Powered",
+    quickEasy: "Quick & Easy",
+    personalized: "Personalized",
+    getStarted: "Get Started",
+    disclaimerTitle: "Important Disclaimer",
+    disclaimerText: "I am an AI assistant, not a tax professional. This is for informational purposes only. Please consult a qualified accountant or tax advisor for financial advice.",
+    // Form
+    tellUsAbout: "Tell us about yourself",
+    formDescription: "This information will help us create your personalized tax plan.",
+    createPlan: "Create My Tax Plan",
+    // Results
+    taxPlan: "Your Personalized Tax Plan",
+    quickReminder: "A quick reminder:",
+    taxSummary: "Your Tax Summary",
+    requiredForms: "Required Forms",
+    nextSteps: "Your Next Steps",
+    why: "Why:",
+    filingCenter: "Form Filing Center",
+    filingCenterDesc: "Click on a form to get line-by-line help from our AI assistant.",
+    noForms: "No specific forms were identified for you. If you think this is an error, please start over.",
+    startOver: "Start over with a new plan",
+    backToPlan: "Back to Tax Plan",
+    newPlan: "New Plan",
+    // Common
+    loading: "Loading...",
+    analyzing: "Analyzing Your Situation...",
+    creatingPlan: "Our AI is creating your personalized tax plan"
+  },
+  es: {
+    // Intro Screen
+    heading: "TaxPal, Tu Asistente Personal\nde IA para Declaración de Impuestos",
+    subtitle: "Haciendo que la Declaración de Impuestos Sea Simple y Sin Estrés",
+    description: "Obtén orientación fiscal personalizada impulsada por IA. Te ayudaremos a entender qué formularios necesitas y te guiaremos en cada paso.",
+    aiPowered: "Impulsado por IA",
+    quickEasy: "Rápido y Fácil",
+    personalized: "Personalizado",
+    getStarted: "Comenzar",
+    disclaimerTitle: "Descargo de Responsabilidad Importante",
+    disclaimerText: "Soy un asistente de IA, no un profesional de impuestos. Esto es solo para fines informativos. Por favor, consulte a un contador o asesor fiscal calificado para obtener asesoramiento financiero.",
+    // Form
+    tellUsAbout: "Cuéntanos sobre ti",
+    formDescription: "Esta información nos ayudará a crear tu plan fiscal personalizado.",
+    createPlan: "Crear Mi Plan Fiscal",
+    // Results
+    taxPlan: "Tu Plan Fiscal Personalizado",
+    quickReminder: "Un recordatorio rápido:",
+    taxSummary: "Tu Resumen Fiscal",
+    requiredForms: "Formularios Requeridos",
+    nextSteps: "Tus Próximos Pasos",
+    why: "Por qué:",
+    filingCenter: "Centro de Declaración de Formularios",
+    filingCenterDesc: "Haz clic en un formulario para obtener ayuda línea por línea de nuestro asistente de IA.",
+    noForms: "No se identificaron formularios específicos para ti. Si crees que esto es un error, por favor comienza de nuevo.",
+    startOver: "Empezar de nuevo con un nuevo plan",
+    backToPlan: "Volver al Plan Fiscal",
+    newPlan: "Nuevo Plan",
+    // Common
+    loading: "Cargando...",
+    analyzing: "Analizando Tu Situación...",
+    creatingPlan: "Nuestra IA está creando tu plan fiscal personalizado"
+  },
+  zh: {
+    // Intro Screen
+    heading: "TaxPal，您的个人\n报税AI助手",
+    subtitle: "让报税变得简单无忧",
+    description: "获得由AI驱动的个性化税务指导。我们将帮助您了解需要哪些表格，并指导您完成每一步。",
+    aiPowered: "AI驱动",
+    quickEasy: "快速简便",
+    personalized: "个性化",
+    getStarted: "开始使用",
+    disclaimerTitle: "重要免责声明",
+    disclaimerText: "我是AI助手，不是税务专业人士。这仅供参考。请咨询合格的会计师或税务顾问以获得财务建议。",
+    // Form
+    tellUsAbout: "告诉我们关于您的信息",
+    formDescription: "这些信息将帮助我们为您创建个性化的税务计划。",
+    createPlan: "创建我的税务计划",
+    // Results
+    taxPlan: "您的个性化税务计划",
+    quickReminder: "快速提醒：",
+    taxSummary: "您的税务摘要",
+    requiredForms: "所需表格",
+    nextSteps: "您的下一步",
+    why: "原因：",
+    filingCenter: "表格填报中心",
+    filingCenterDesc: "点击表格以获取我们AI助手的逐行帮助。",
+    noForms: "未为您识别出特定表格。如果您认为这是错误，请重新开始。",
+    startOver: "重新开始新计划",
+    backToPlan: "返回税务计划",
+    newPlan: "新计划",
+    // Common
+    loading: "加载中...",
+    analyzing: "分析您的情况...",
+    creatingPlan: "我们的AI正在创建您的个性化税务计划"
+  }
+};
+
+// --- Language Selector Component ---
+const LanguageSelector = ({ onLanguageSelect }) => React.createElement('div', { 
+  className: "min-h-screen flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 via-white to-blue-50"
+},
+  React.createElement('div', { className: "max-w-md w-full bg-white rounded-2xl shadow-2xl p-10 text-center" },
+    React.createElement('div', { className: "w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mb-6" },
+      React.createElement('span', { className: "text-4xl" }, '🌐')
+    ),
+    React.createElement('h1', { className: "text-3xl font-bold text-slate-900 mb-3" }, "Choose Your Language"),
+    React.createElement('h2', { className: "text-xl font-bold text-blue-600 mb-8" }, "Selecciona tu idioma"),
+    React.createElement('h3', { className: "text-xl font-bold text-blue-600 mb-8" }, "选择您的语言"),
+    React.createElement('div', { className: "space-y-4" },
+      React.createElement('button', {
+        onClick: () => onLanguageSelect('en'),
+        className: "w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-lg shadow-lg transition-transform transform hover:scale-105 flex items-center justify-center"
+      },
+        React.createElement('span', { className: "text-2xl mr-3" }, '🇺🇸'),
+        "English"
+      ),
+      React.createElement('button', {
+        onClick: () => onLanguageSelect('es'),
+        className: "w-full py-4 px-6 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl text-lg shadow-lg transition-transform transform hover:scale-105 flex items-center justify-center"
+      },
+        React.createElement('span', { className: "text-2xl mr-3" }, '🇪🇸'),
+        "Español"
+      ),
+      React.createElement('button', {
+        onClick: () => onLanguageSelect('zh'),
+        className: "w-full py-4 px-6 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl text-lg shadow-lg transition-transform transform hover:scale-105 flex items-center justify-center"
+      },
+        React.createElement('span', { className: "text-2xl mr-3" }, '🇨🇳'),
+        "中文"
+      )
+    )
+  )
+);
+
 
 // --- AI System Prompts ---
 // These are now moved to the serverless functions.
@@ -92,7 +232,9 @@ const fetchChatReply = async (userQuery, history, pdfBase64 = null) => {
 /**
  * Step 1: Welcome Screen
  */
-const IntroScreen = ({ onStart }) => React.createElement('div', { className: "min-h-screen flex items-center justify-center p-8 relative overflow-hidden" },
+const IntroScreen = ({ onStart, t }) => {
+  const headingLines = t.heading.split('\n');
+  return React.createElement('div', { className: "min-h-screen flex items-center justify-center p-8 relative overflow-hidden" },
   // Animated background - using calm, trustworthy colors
   React.createElement('div', { className: "absolute inset-0 gradient-bg opacity-10" }),
   React.createElement('div', { className: "absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50" }),
@@ -112,32 +254,32 @@ const IntroScreen = ({ onStart }) => React.createElement('div', { className: "mi
     
     // Heading with gradient text - softer, more professional
     React.createElement('h1', { className: "text-5xl md:text-6xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-700 leading-tight" },
-      "TaxPal, Your Personal",
+      headingLines[0],
       React.createElement('br', null),
-      "Tax Filing AI Assistant"
+      headingLines[1]
     ),
     
     // Subtitle - larger, more accessible font
     React.createElement('p', { className: "text-2xl md:text-3xl text-slate-600 mb-4 font-medium" },
-      "Making Tax Filing Simple & Stress-Free"
+      t.subtitle
     ),
     React.createElement('p', { className: "text-xl text-slate-500 mb-8 max-w-2xl mx-auto leading-relaxed" },
-      "Get personalized tax guidance powered by AI. We'll help you understand what forms you need and guide you through every step."
+      t.description
     ),
     
-    // Feature highlights - using blue theme
+          // Feature highlights - using blue theme
     React.createElement('div', { className: "flex flex-wrap justify-center gap-4 mb-10" },
       React.createElement('div', { className: "flex items-center bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-md border border-blue-100" },
         React.createElement('span', { className: "text-xl mr-2" }, '🤖'),
-        React.createElement('span', { className: "text-base font-medium text-slate-700" }, 'AI-Powered')
+        React.createElement('span', { className: "text-base font-medium text-slate-700" }, t.aiPowered)
       ),
       React.createElement('div', { className: "flex items-center bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-md border border-blue-100" },
         React.createElement('span', { className: "text-xl mr-2" }, '⚡'),
-        React.createElement('span', { className: "text-base font-medium text-slate-700" }, 'Quick & Easy')
+        React.createElement('span', { className: "text-base font-medium text-slate-700" }, t.quickEasy)
       ),
       React.createElement('div', { className: "flex items-center bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-md border border-blue-100" },
         React.createElement('span', { className: "text-xl mr-2" }, '🎯'),
-        React.createElement('span', { className: "text-base font-medium text-slate-700" }, 'Personalized')
+        React.createElement('span', { className: "text-base font-medium text-slate-700" }, t.personalized)
       )
     ),
     
@@ -146,7 +288,7 @@ const IntroScreen = ({ onStart }) => React.createElement('div', { className: "mi
       onClick: onStart,
       className: "group relative bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-5 px-14 rounded-2xl text-xl shadow-2xl shadow-green-500/50 transition-all duration-300 transform hover:scale-105 hover:shadow-green-600/60 flex items-center justify-center mx-auto mb-8"
     },
-      "Get Started",
+      t.getStarted,
       React.createElement('svg', { className: "ml-3 w-6 h-6 transform group-hover:translate-x-1 transition-transform", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
         React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M13 7l5 5m0 0l-5 5m5-5H6" })
       )
@@ -159,15 +301,16 @@ const IntroScreen = ({ onStart }) => React.createElement('div', { className: "mi
           React.createElement('span', { className: "text-white text-xl" }, '⚠️')
         ),
         React.createElement('div', null,
-          React.createElement('h3', { className: "font-bold text-yellow-900 mb-2 text-lg" }, "Important Disclaimer"),
+          React.createElement('h3', { className: "font-bold text-yellow-900 mb-2 text-lg" }, t.disclaimerTitle),
           React.createElement('p', { className: "text-base text-yellow-800 leading-relaxed" },
-            "I am an AI assistant, not a tax professional. This is for informational purposes only. Please consult a qualified accountant or tax advisor for financial advice."
+            t.disclaimerText
           )
         )
       )
     )
-  )
-);
+    )
+  );
+};
 
 /**
  * Step 2: Intake Form
@@ -1033,12 +1176,21 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail }) =
  * Main App Component
  */
 function App() {
+  const [language, setLanguage] = useState(null); // null = language selection screen
   const [step, setStep] = useState('intro'); // 'intro', 'form', 'loading', 'results', 'filing'
   const [formData, setFormData] = useState(null);
   const [aiResponse, setAiResponse] = useState(null);
   const [error, setError] = useState(null);
   const [currentForm, setCurrentForm] = useState(null); // For the filing page
   const [currentStepDetail, setCurrentStepDetail] = useState(null); // For the modal
+
+  // Get translations for current language
+  const t = translations[language || 'en'];
+
+  // Show language selector if language not selected
+  if (!language) {
+    return React.createElement(LanguageSelector, { onLanguageSelect: setLanguage });
+  }
 
   const handleStart = () => {
     setStep('form');
@@ -1130,7 +1282,7 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
   const renderStep = () => {
     switch (step) {
       case 'intro':
-        return React.createElement(IntroScreen, { onStart: handleStart });
+        return React.createElement(IntroScreen, { onStart: handleStart, t: t });
       case 'form':
         return React.createElement(IntakeForm, { onSubmit: handleSubmit, onLoading: handleLoading });
       case 'loading':
@@ -1151,7 +1303,7 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
           }
         });
       default:
-        return React.createElement(IntroScreen, { onStart: handleStart });
+        return React.createElement(IntroScreen, { onStart: handleStart, t: t });
     }
   };
 
@@ -1164,10 +1316,21 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
           ),
           React.createElement('span', { className: "text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-700" }, "TaxPal")
         ),
-        React.createElement('button', {
-          onClick: handleStart,
-          className: "px-6 py-3 text-lg font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-colors"
-        }, "New Plan")
+        React.createElement('div', { className: "flex items-center space-x-4" },
+          React.createElement('select', {
+            value: language,
+            onChange: (e) => setLanguage(e.target.value),
+            className: "px-4 py-2 text-base font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+          },
+            React.createElement('option', { value: "en" }, "🇺🇸 English"),
+            React.createElement('option', { value: "es" }, "🇪🇸 Español"),
+            React.createElement('option', { value: "zh" }, "🇨🇳 中文")
+          ),
+          React.createElement('button', {
+            onClick: handleStart,
+            className: "px-6 py-3 text-lg font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-colors"
+          }, "New Plan")
+        )
       )
     ),
     React.createElement('main', null,
