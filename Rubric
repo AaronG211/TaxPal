@@ -12,20 +12,19 @@ To be specific,there will be generated:
 
 Final Project Rubric: 
 
-Structure/Languages: 20
+Structure/Languages: 10
 
-- AI calling: 10
 - React for front end: 10 
 
-Functionality: 60 
 
-- All the input for user info passes sanity check:                        10
+Functionality: 70 
+
+- All the input for user info passes sanity check:                           10
 - The steps changes logically by referring to different user information: 10 
-- The list of forms are logical and make sense:                           20 
-- The filing center allow the pdf to be access by the AI:                 10 
-- The filing center provide reasonable suggestions on how to file:        10 
+- The list of forms are logical and make sense:                           10 
+- The filing center allow the pdf to be access by the AI:                 15 
+- The filing center provide reasonable suggestions on how to file:        15
+- AI calling: 10
 
-Interaction: 20
+Creative: 20
 
-- The different language system shall work for Chinese, Spanish, and English: 10
-- UI is enjoyable:                                                            10 
