@@ -1,0 +1,31 @@
+Final Project Idea: 
+
+I want to build a AI-Powered website that helps people with the tax filing. 
+The general workflow is: The users will input their personal info such as their residence, working status, age, etc, then our AI will look into these info and generate a tax plan that our users shall follow. 
+
+To be specific,there will be generated:
+- A step by step tax plan for the user.
+- A list of all the government forms needed to be done by the user. 
+- And a "filing center", where user can drag a form (pdf) for our AI to access and provide guidiance on. 
+
+
+
+Final Project Rubric: 
+
+Structure/Languages: 20
+
+- AI calling: 10
+- React for front end: 10 
+
+Functionality: 60 
+
+- All the input for user info passes sanity check:                        10
+- The steps changes logically by referring to different user information: 10 
+- The list of forms are logical and make sense:                           20 
+- The filing center allow the pdf to be access by the AI:                 10 
+- The filing center provide reasonable suggestions on how to file:        10 
+
+Interaction: 20
+
+- The different language system shall work for Chinese, Spanish, and English: 10
+- UI is enjoyable:                                                            10 
