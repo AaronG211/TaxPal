@@ -1,114 +1,99 @@
-
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TaxPal - AI Tax Assistant</title>
-    
-    <!-- Tailwind CSS CDN -->
+
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Custom Tailwind Configuration -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
     <script>
       tailwind.config = {
-        darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
-              'sans': ['Inter', 'system-ui', 'sans-serif'],
+              sans: ['Sora', 'ui-sans-serif', 'sans-serif'],
+              display: ['Fraunces', 'Georgia', 'serif']
             },
-            animation: {
-              'spin': 'spin 1s linear infinite',
-              'bounce': 'bounce 1s infinite',
-              'float': 'float 3s ease-in-out infinite',
-              'gradient': 'gradient 15s ease infinite',
-              'fadeIn': 'fadeIn 0.5s ease-in',
-            },
-            keyframes: {
-              float: {
-                '0%, 100%': { transform: 'translateY(0px)' },
-                '50%': { transform: 'translateY(-20px)' },
-              },
-              gradient: {
-                '0%, 100%': { backgroundPosition: '0% 50%' },
-                '50%': { backgroundPosition: '100% 50%' },
-              },
-              fadeIn: {
-                '0%': { opacity: '0', transform: 'translateY(20px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
+            colors: {
+              tide: {
+                50: '#eefbf9',
+                100: '#d5f4ee',
+                200: '#afe8de',
+                300: '#7bd8ca',
+                400: '#44bfae',
+                500: '#249b8d',
+                600: '#147c72',
+                700: '#0f635d',
+                800: '#104f4b',
+                900: '#103f3e'
               }
             },
+            animation: {
+              drift: 'drift 12s ease-in-out infinite',
+              'pulse-soft': 'pulseSoft 2.4s ease-in-out infinite'
+            },
+            keyframes: {
+              drift: {
+                '0%, 100%': { transform: 'translate3d(0, 0, 0)' },
+                '50%': { transform: 'translate3d(0, -14px, 0)' }
+              },
+              pulseSoft: {
+                '0%, 100%': { opacity: '0.45' },
+                '50%': { opacity: '1' }
+              }
+            }
           }
         }
-      }
+      };
     </script>
-    
+
     <style>
+      :root {
+        color-scheme: light;
+      }
+
       body {
-        font-family: 'Inter', sans-serif;
+        margin: 0;
+        font-family: 'Sora', sans-serif;
+        color: #0f172a;
+        background: #f4fbf9;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
       }
-      
-      /* Custom scrollbar */
+
+      ::selection {
+        background: rgba(20, 124, 114, 0.18);
+      }
+
       ::-webkit-scrollbar {
-        width: 10px;
+        width: 11px;
       }
-      
+
       ::-webkit-scrollbar-track {
-        background: #f1f5f9;
+        background: #e8f2ef;
       }
-      
+
       ::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 5px;
+        background: #89c9bf;
+        border-radius: 999px;
       }
-      
+
       ::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-      }
-      
-      .gradient-bg {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-        background-size: 200% 200%;
-        animation: gradient 15s ease infinite;
-      }
-      
-      .glass-effect {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-      
-      .shadow-glow {
-        box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
-      }
-      
-      .hover-lift {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
-      
-      .hover-lift:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        background: #4fa99c;
       }
     </style>
   </head>
   <body class="antialiased">
     <div id="root"></div>
 
-    <!-- Load environment variables first -->
-     
-    
-    <!-- React & ReactDOM via CDN -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
-    <!-- Your JavaScript component file -->
     <script src="./App.js"></script>
 
     <script>

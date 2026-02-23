@@ -219,66 +219,142 @@ const translations = {
   }
 };
 
-// --- Language Selector Component ---
-const LanguageSelector = ({ onLanguageSelect }) => React.createElement('div', { 
-  className: "min-h-screen flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 via-white to-blue-50"
-},
-  React.createElement('div', { className: "max-w-md w-full bg-white rounded-2xl shadow-2xl p-10 text-center" },
-    React.createElement('div', { className: "w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mb-6" },
-      React.createElement('span', { className: "text-4xl" }, '🌐')
-    ),
-    React.createElement('h1', { className: "text-3xl font-bold text-slate-900 mb-3" }, "Choose Your Language"),
-    React.createElement('h2', { className: "text-xl font-bold text-blue-600 mb-8" }, "Selecciona tu idioma"),
-    React.createElement('h3', { className: "text-xl font-bold text-blue-600 mb-8" }, "选择您的语言"),
-    React.createElement('div', { className: "space-y-4" },
-      React.createElement('button', {
-        onClick: () => onLanguageSelect('en'),
-        className: "w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-lg shadow-lg transition-transform transform hover:scale-105 flex items-center justify-center"
-      },
-        React.createElement('span', { className: "text-2xl mr-3" }, '🇺🇸'),
-        "English"
-      ),
-      React.createElement('button', {
-        onClick: () => onLanguageSelect('es'),
-        className: "w-full py-4 px-6 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl text-lg shadow-lg transition-transform transform hover:scale-105 flex items-center justify-center"
-      },
-        React.createElement('span', { className: "text-2xl mr-3" }, '🇪🇸'),
-        "Español"
-      ),
-      React.createElement('button', {
-        onClick: () => onLanguageSelect('zh'),
-        className: "w-full py-4 px-6 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl text-lg shadow-lg transition-transform transform hover:scale-105 flex items-center justify-center"
-      },
-        React.createElement('span', { className: "text-2xl mr-3" }, '🇨🇳'),
-        "中文"
-      )
-    )
-  )
+const h = React.createElement;
+
+const cn = (...classes) => classes.filter(Boolean).join(' ');
+
+const APP_STYLES = {
+  panel: "rounded-[28px] border border-slate-200/80 bg-white/90 shadow-[0_30px_80px_-45px_rgba(15,23,42,0.45)] backdrop-blur-sm",
+  section: "rounded-3xl border border-slate-200/80 bg-white p-6 shadow-[0_18px_45px_-35px_rgba(15,23,42,0.5)] sm:p-8",
+  control: "mt-2 w-full rounded-2xl border border-slate-300/90 bg-white px-4 py-3 text-[15px] text-slate-800 placeholder:text-slate-400 shadow-sm transition-all duration-200 focus:border-tide-600 focus:outline-none focus:ring-4 focus:ring-tide-100",
+  label: "text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500"
+};
+
+const DEFAULT_FORM_DATA = {
+  nationality: '',
+  state: '',
+  yearsInUS: '',
+  jobStatus: 'employed',
+  isStudent: 'no',
+  hasSSN: 'yes',
+  housingStatus: 'rent',
+  ownsCar: 'no',
+  incomeRange: '',
+  filingStatus: 'single',
+  dependents: '0',
+  hadJobChange: 'no',
+  itemizedPreviousYear: 'no',
+  incomeSources: [],
+  specifics: ''
+};
+
+const PROMPT_LABELS = {
+  jobStatus: {
+    employed: 'Employed',
+    selfEmployed: 'Self-Employed',
+    unemployed: 'Unemployed',
+    retired: 'Retired'
+  },
+  yesNo: {
+    yes: 'Yes',
+    no: 'No'
+  },
+  housingStatus: {
+    rent: 'Rent',
+    own: 'Own'
+  },
+  filingStatus: {
+    single: 'Single',
+    marriedJointly: 'Married Filing Jointly',
+    marriedSeparately: 'Married Filing Separately',
+    headOfHousehold: 'Head of Household',
+    qualifyingWidow: 'Qualifying Widow(er)'
+  },
+  itemizedPreviousYear: {
+    yes: 'Yes',
+    no: 'No',
+    notSure: "Don't remember"
+  },
+  incomeSources: {
+    w2Salary: 'W-2 Salary (from an employer)',
+    selfEmployment: 'Self-Employment / Freelance (1099-NEC/MISC)',
+    stockInvestments: 'Stock Investments (Dividends/Capital Gains)',
+    rentalIncome: 'Rental Income',
+    cryptocurrency: 'Cryptocurrency',
+    other: 'Other'
+  }
+};
+
+const US_STATES = [
+  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA',
+  'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK',
+  'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+];
+
+const INCOME_RANGES = [
+  'Under $12,000',
+  '$12,000 - $24,999',
+  '$25,000 - $49,999',
+  '$50,000 - $99,999',
+  '$100,000 - $200,000',
+  'Over $200,000'
+];
+
+const getOptionSets = (t) => ({
+  jobStatus: [
+    { value: 'employed', label: t.employed },
+    { value: 'selfEmployed', label: t.selfEmployed },
+    { value: 'unemployed', label: t.unemployed },
+    { value: 'retired', label: t.retired }
+  ],
+  yesNo: [
+    { value: 'yes', label: t.yes },
+    { value: 'no', label: t.no }
+  ],
+  housingStatus: [
+    { value: 'rent', label: t.rent },
+    { value: 'own', label: t.own }
+  ],
+  filingStatus: [
+    { value: 'single', label: t.single },
+    { value: 'marriedJointly', label: t.marriedFilingJointly },
+    { value: 'marriedSeparately', label: t.marriedFilingSeparately },
+    { value: 'headOfHousehold', label: t.headOfHousehold },
+    { value: 'qualifyingWidow', label: 'Qualifying Widow(er)' }
+  ],
+  itemizedPreviousYear: [
+    { value: 'yes', label: t.yes },
+    { value: 'no', label: t.no },
+    { value: 'notSure', label: "Don't remember" }
+  ],
+  incomeSources: [
+    { value: 'w2Salary', label: t.w2Salary },
+    { value: 'selfEmployment', label: t.selfEmployment },
+    { value: 'stockInvestments', label: t.stockInvestments },
+    { value: 'rentalIncome', label: t.rentalIncome },
+    { value: 'cryptocurrency', label: t.cryptocurrency },
+    { value: 'other', label: t.other }
+  ]
+});
+
+const getPromptValue = (value, dictionary) => dictionary[value] || value || 'Not specified';
+
+const PageBackdrop = () => h('div', { className: "pointer-events-none absolute inset-0 overflow-hidden" },
+  h('div', { className: "absolute -left-32 top-16 h-72 w-72 rounded-full bg-tide-200/55 blur-3xl animate-drift" }),
+  h('div', { className: "absolute -right-28 top-36 h-64 w-64 rounded-full bg-amber-200/45 blur-3xl animate-drift", style: { animationDelay: '2.6s' } }),
+  h('div', { className: "absolute bottom-[-7rem] left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-emerald-200/35 blur-3xl animate-drift", style: { animationDelay: '1.1s' } })
 );
 
-
-// --- AI System Prompts ---
-// These are now moved to the serverless functions.
-// We can remove PLAN_SYSTEM_PROMPT, CHAT_FORM_SYSTEM_PROMPT, and TAX_PLAN_SCHEMA
-// from this file to save space and keep secrets on the backend.
-
+const DotBadge = ({ label }) => h('span', {
+  className: "inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 shadow-sm"
+}, label);
 
 // --- Utility Functions ---
-
-/**
- * A wrapper for fetch that includes exponential backoff.
- * @param {string} url - The URL to fetch.
- * @param {object} options - The fetch options (method, headers, body).
- * @param {number} retries - Number of retries.
- * @param {number} delay - Initial delay in ms.
- * @returns {Promise<object>} - The raw fetch response.
- */
 const fetchWithBackoff = async (url, options, retries = 5, delay = 1000) => {
   for (let i = 0; i < retries; i++) {
     try {
       const response = await fetch(url, options);
       if (!response.ok) {
-        // Try to get error details from response body
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
           const errorBody = await response.json();
@@ -286,12 +362,10 @@ const fetchWithBackoff = async (url, options, retries = 5, delay = 1000) => {
             errorMessage = errorBody.error;
           }
         } catch (e) {
-          // If can't parse JSON, use status text
           errorMessage = `HTTP error! status: ${response.status} ${response.statusText}`;
         }
         throw new Error(errorMessage);
       }
-      // We change this: return the raw response first, then decide if .json() or .text()
       return response;
     } catch (error) {
       console.warn(`Attempt ${i + 1} failed. Retrying in ${delay}ms...`);
@@ -300,18 +374,11 @@ const fetchWithBackoff = async (url, options, retries = 5, delay = 1000) => {
         throw error;
       }
       await new Promise(resolve => setTimeout(resolve, delay));
-      delay *= 2; // Exponential backoff
+      delay *= 2;
     }
   }
 };
 
-/**
- * Function to call our secure chat backend.
- * @param {string} userQuery - The user's prompt.
- * @param {Array<object>} history - The chat history.
- * @param {string|null} pdfBase64 - Optional base64 encoded PDF file.
- * @returns {Promise<string>} - The text part of the AI's response.
- */
 const fetchChatReply = async (userQuery, history, pdfBase64 = null, language = 'en') => {
   const options = {
     method: 'POST',
@@ -320,144 +387,228 @@ const fetchChatReply = async (userQuery, history, pdfBase64 = null, language = '
   };
 
   try {
-    // 1. Call our new secure function
-    const response = await fetchWithBackoff("/.netlify/functions/getChatReply", options);
-    
-    // 2. Get the JSON response from our function
-    const result = await response.json(); 
-    
+    const response = await fetchWithBackoff('/.netlify/functions/getChatReply', options);
+    const result = await response.json();
+
     if (result.reply) {
       return result.reply;
-    } else {
-      throw new Error(result.error || "Invalid response from chat function.");
     }
+    throw new Error(result.error || 'Invalid response from chat function.');
   } catch (error) {
-    console.error("Error fetching chat reply:", error);
-    throw error; // Re-throw to be handled by caller
+    console.error('Error fetching chat reply:', error);
+    throw error;
   }
 };
 
+const LanguageSelector = ({ onLanguageSelect }) => {
+  const languages = [
+    { code: 'en', name: 'English', note: 'United States', short: 'EN' },
+    { code: 'es', name: 'Español', note: 'Latinoamérica', short: 'ES' },
+    { code: 'zh', name: '中文', note: '简体', short: 'ZH' }
+  ];
 
-// --- React Components ---
-
-/**
- * Step 1: Welcome Screen
- */
-const IntroScreen = ({ onStart, t }) => {
-  const headingLines = t.heading.split('\n');
-  return React.createElement('div', { className: "min-h-screen flex items-center justify-center p-8 relative overflow-hidden" },
-  // Animated background - using calm, trustworthy colors
-  React.createElement('div', { className: "absolute inset-0 gradient-bg opacity-10" }),
-  React.createElement('div', { className: "absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50" }),
-  
-  // Floating decorative elements - softer, more professional
-  React.createElement('div', { className: "absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" }),
-  React.createElement('div', { className: "absolute bottom-20 right-10 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float", style: { animationDelay: '2s' } }),
-  
-  // Main content
-  React.createElement('div', { className: "relative z-10 text-center max-w-4xl mx-auto animate-fadeIn" },
-    // Logo/Icon with animation - using trustworthy blue
-    React.createElement('div', { className: "mb-8 relative inline-block" },
-      React.createElement('div', { className: "w-24 h-24 mx-auto bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl shadow-2xl flex items-center justify-center transform rotate-6 hover:rotate-12 transition-transform duration-300" },
-        React.createElement('span', { className: "text-5xl" }, '📋')
-      )
-    ),
-    
-    // Heading with gradient text - softer, more professional
-    React.createElement('h1', { className: "text-5xl md:text-6xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-700 leading-tight" },
-      headingLines[0],
-      React.createElement('br', null),
-      headingLines[1]
-    ),
-    
-    // Subtitle - larger, more accessible font
-    React.createElement('p', { className: "text-2xl md:text-3xl text-slate-600 mb-4 font-medium" },
-      t.subtitle
-    ),
-    React.createElement('p', { className: "text-xl text-slate-500 mb-8 max-w-2xl mx-auto leading-relaxed" },
-      t.description
-    ),
-    
-          // Feature highlights - using blue theme
-    React.createElement('div', { className: "flex flex-wrap justify-center gap-4 mb-10" },
-      React.createElement('div', { className: "flex items-center bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-md border border-blue-100" },
-        React.createElement('span', { className: "text-xl mr-2" }, '🤖'),
-        React.createElement('span', { className: "text-base font-medium text-slate-700" }, t.aiPowered)
-      ),
-      React.createElement('div', { className: "flex items-center bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-md border border-blue-100" },
-        React.createElement('span', { className: "text-xl mr-2" }, '⚡'),
-        React.createElement('span', { className: "text-base font-medium text-slate-700" }, t.quickEasy)
-      ),
-      React.createElement('div', { className: "flex items-center bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-md border border-blue-100" },
-        React.createElement('span', { className: "text-xl mr-2" }, '🎯'),
-        React.createElement('span', { className: "text-base font-medium text-slate-700" }, t.personalized)
-      )
-    ),
-    
-    // CTA Button - using friendly green for "go" action
-    React.createElement('button', {
-      onClick: onStart,
-      className: "group relative bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-5 px-14 rounded-2xl text-xl shadow-2xl shadow-green-500/50 transition-all duration-300 transform hover:scale-105 hover:shadow-green-600/60 flex items-center justify-center mx-auto mb-8"
-    },
-      t.getStarted,
-      React.createElement('svg', { className: "ml-3 w-6 h-6 transform group-hover:translate-x-1 transition-transform", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
-        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M13 7l5 5m0 0l-5 5m5-5H6" })
-      )
-    ),
-    
-    // Disclaimer - using soft yellow as specified
-    React.createElement('div', { className: "bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-6 shadow-lg max-w-2xl mx-auto" },
-      React.createElement('div', { className: "flex items-start" },
-        React.createElement('div', { className: "w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0 mr-4 mt-1" },
-          React.createElement('span', { className: "text-white text-xl" }, '⚠️')
+  return h('div', { className: "relative min-h-screen overflow-hidden bg-gradient-to-br from-[#f4fbf9] via-[#fcfffe] to-[#ebf5f3] px-5 py-10 sm:px-10" },
+    h(PageBackdrop),
+    h('main', { className: "relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-4xl items-center" },
+      h('section', { className: cn(APP_STYLES.panel, 'w-full p-8 sm:p-12') },
+        h('div', { className: 'mb-8 flex items-center justify-between gap-4' },
+          h('div', null,
+            h('p', { className: 'text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500' }, 'TaxPal Setup'),
+            h('h1', { className: 'mt-2 font-display text-4xl text-slate-900 sm:text-5xl' }, 'Choose Your Language')
+          ),
+          h('div', { className: 'hidden sm:block' }, h(DotBadge, { label: '1/1' }))
         ),
-        React.createElement('div', null,
-          React.createElement('h3', { className: "font-bold text-yellow-900 mb-2 text-lg" }, t.disclaimerTitle),
-          React.createElement('p', { className: "text-base text-yellow-800 leading-relaxed" },
-            t.disclaimerText
-          )
+        h('p', { className: 'mb-8 max-w-2xl text-base text-slate-600' },
+          'Pick your preferred language. You can switch it again anytime in the top bar.'
+        ),
+        h('div', { className: 'grid gap-4 sm:grid-cols-3' },
+          languages.map((item) => h('button', {
+            key: item.code,
+            onClick: () => onLanguageSelect(item.code),
+            className: cn(
+              'group rounded-2xl border border-slate-200 bg-white p-4 text-left transition-all duration-300',
+              'hover:-translate-y-0.5 hover:border-tide-300 hover:shadow-[0_18px_35px_-30px_rgba(6,95,70,0.75)]',
+              'focus:outline-none focus:ring-4 focus:ring-tide-100'
+            )
+          },
+            h('div', { className: 'flex items-center justify-between' },
+              h(DotBadge, { label: item.short }),
+              h('span', { className: 'text-sm text-slate-400 transition group-hover:text-tide-600' }, 'Select')
+            ),
+            h('p', { className: 'mt-5 text-xl font-semibold text-slate-900' }, item.name),
+            h('p', { className: 'mt-1 text-sm text-slate-500' }, item.note)
+          ))
+        ),
+        h('div', { className: 'mt-9 rounded-2xl border border-amber-100 bg-amber-50/80 px-4 py-3 text-sm text-amber-900' },
+          h('strong', { className: 'font-semibold' }, 'Note: '),
+          'Tax guidance is informational only and should be reviewed with a qualified tax professional.'
         )
       )
-    )
     )
   );
 };
 
-/**
- * Step 2: Intake Form
- */
+const IntroScreen = ({ onStart, t }) => {
+  const headingLines = t.heading.split('\n');
+
+  return h('section', { className: 'relative overflow-hidden px-5 pb-14 pt-8 sm:px-10 sm:pt-14' },
+    h(PageBackdrop),
+    h('div', { className: 'relative z-10 mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.35fr_1fr]' },
+      h('div', { className: cn(APP_STYLES.panel, 'p-8 sm:p-10 lg:p-12') },
+        h('p', { className: 'text-[11px] font-semibold uppercase tracking-[0.22em] text-tide-700' }, 'Fresh tax experience'),
+        h('h1', { className: 'mt-4 font-display text-4xl leading-[1.1] text-slate-900 sm:text-5xl lg:text-6xl' },
+          headingLines[0],
+          h('br', null),
+          headingLines[1]
+        ),
+        h('p', { className: 'mt-6 text-xl font-medium text-slate-700' }, t.subtitle),
+        h('p', { className: 'mt-4 max-w-3xl text-base leading-relaxed text-slate-600 sm:text-lg' }, t.description),
+        h('div', { className: 'mt-8 flex flex-wrap gap-3' },
+          [t.aiPowered, t.quickEasy, t.personalized].map((label) => h('span', {
+            key: label,
+            className: 'inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700'
+          }, label))
+        ),
+        h('div', { className: 'mt-10 flex flex-wrap items-center gap-4' },
+          h('button', {
+            onClick: onStart,
+            className: cn(
+              'rounded-2xl bg-tide-700 px-7 py-4 text-base font-semibold text-white shadow-lg shadow-tide-900/20 transition-all duration-300',
+              'hover:-translate-y-0.5 hover:bg-tide-800 focus:outline-none focus:ring-4 focus:ring-tide-200'
+            )
+          }, t.getStarted),
+          h('span', { className: 'text-sm text-slate-500' }, '2-minute setup • mobile friendly')
+        )
+      ),
+      h('div', { className: 'space-y-5' },
+        h('div', { className: cn(APP_STYLES.section, 'bg-gradient-to-br from-tide-900 to-tide-700 text-white') },
+          h('p', { className: 'text-xs uppercase tracking-[0.18em] text-tide-100/90' }, 'How it works'),
+          h('ol', { className: 'mt-4 space-y-4' },
+            [
+              'Answer a structured profile form',
+              'Receive your tailored filing roadmap',
+              'Open each required form with AI guidance'
+            ].map((item, index) => h('li', { key: item, className: 'flex items-start gap-3' },
+              h('span', { className: 'mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-xs font-semibold' }, index + 1),
+              h('span', { className: 'text-sm leading-relaxed text-tide-50' }, item)
+            ))
+          )
+        ),
+        h('div', { className: cn(APP_STYLES.section, 'border-amber-200/70 bg-amber-50/90') },
+          h('p', { className: 'text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-800' }, t.disclaimerTitle),
+          h('p', { className: 'mt-2 text-sm leading-relaxed text-amber-900' }, t.disclaimerText)
+        )
+      )
+    )
+  );
+};
+
+const FormInput = ({ label, name, value, onChange, ...props }) => h('label', { className: 'block' },
+  h('span', { className: APP_STYLES.label }, label),
+  h('input', {
+    id: name,
+    name,
+    value,
+    onChange,
+    className: APP_STYLES.control,
+    ...props
+  })
+);
+
+const FormSelect = ({ label, name, value, onChange, children, ...props }) => h('label', { className: 'block' },
+  h('span', { className: APP_STYLES.label }, label),
+  h('select', {
+    id: name,
+    name,
+    value,
+    onChange,
+    className: APP_STYLES.control,
+    ...props
+  }, children)
+);
+
+const FormRadio = ({ label, name, value, onChange, options }) => h('fieldset', { className: 'block' },
+  h('legend', { className: APP_STYLES.label }, label),
+  h('div', { className: 'mt-2 flex flex-wrap gap-2' },
+    options.map((option) => h('label', {
+      key: `${name}-${option.value}`,
+      className: cn(
+        'inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm transition',
+        value === option.value
+          ? 'border-tide-400 bg-tide-50 text-tide-900'
+          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+      )
+    },
+      h('input', {
+        type: 'radio',
+        name,
+        value: option.value,
+        checked: value === option.value,
+        onChange,
+        className: 'h-4 w-4 accent-tide-700'
+      }),
+      h('span', null, option.label)
+    ))
+  )
+);
+
+const FormCheckboxGroup = ({ label, options, selected, onChange }) => h('fieldset', { className: 'block' },
+  h('legend', { className: APP_STYLES.label }, label),
+  h('div', { className: 'mt-2 grid gap-2 sm:grid-cols-2' },
+    options.map((option) => {
+      const checked = selected.includes(option.value);
+      return h('label', {
+        key: option.value,
+        className: cn(
+          'inline-flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 text-sm transition',
+          checked
+            ? 'border-tide-400 bg-tide-50 text-tide-900'
+            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+        )
+      },
+        h('input', {
+          type: 'checkbox',
+          value: option.value,
+          checked,
+          onChange,
+          className: 'h-4 w-4 rounded accent-tide-700'
+        }),
+        h('span', null, option.label)
+      );
+    })
+  )
+);
+
+const FormTextArea = ({ label, name, value, onChange, ...props }) => h('label', { className: 'block' },
+  h('span', { className: APP_STYLES.label }, label),
+  h('textarea', {
+    id: name,
+    name,
+    value,
+    onChange,
+    rows: 4,
+    className: APP_STYLES.control,
+    ...props
+  })
+);
+
 const IntakeForm = ({ onSubmit, onLoading, t }) => {
-  const [formData, setFormData] = useState({
-    nationality: '',
-    state: '',
-    jobStatus: 'Employed',
-    incomeSources: [],
-    hasSSN: 'Yes',
-    isStudent: 'No',
-    housingStatus: 'Rent',
-    ownsCar: 'No',
-    yearsInUS: '',
-    incomeRange: '',
-    filingStatus: 'Single',
-    dependents: '0',
-    hadJobChange: 'No',
-    itemizedPreviousYear: 'No',
-    specifics: ''
-  });
+  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
+  const optionSets = getOptionSets(t);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCheckboxChange = (e) => {
     const { value, checked } = e.target;
-    setFormData(prev => {
-      const newIncomeSources = checked
+    setFormData((prev) => ({
+      ...prev,
+      incomeSources: checked
         ? [...prev.incomeSources, value]
-        : prev.incomeSources.filter(source => source !== value);
-      return { ...prev, incomeSources: newIncomeSources };
-    });
+        : prev.incomeSources.filter((source) => source !== value)
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -465,401 +616,252 @@ const IntakeForm = ({ onSubmit, onLoading, t }) => {
     onLoading();
     onSubmit(formData);
   };
-  
-  const usStates = [
-    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
-  ];
-  
-  const incomeOptions = [
-    t.w2Salary,
-    t.selfEmployment,
-    t.stockInvestments,
-    t.rentalIncome,
-    t.cryptocurrency,
-    t.other
-  ];
 
-  return React.createElement('div', { className: "max-w-3xl mx-auto p-4 md:p-8" },
-    React.createElement('h2', { className: "text-4xl font-bold text-slate-900 dark:text-white mb-6" },
-      t.tellUsAbout
-    ),
-    React.createElement('p', { className: "text-xl text-slate-600 dark:text-slate-300 mb-8 leading-relaxed" },
-      t.formDescription
-    ),
-    React.createElement('form', { onSubmit: handleSubmit, className: "space-y-6" },
-      // Personal Info Grid
-      React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-        React.createElement(FormInput, {
-          label: t.nationality,
-          name: "nationality",
-          value: formData.nationality,
-          onChange: handleChange,
-          icon: "👤",
-          placeholder: t.nationalityPlaceholder,
-          required: true
-        }),
-        React.createElement(FormSelect, {
-          label: t.state,
-          name: "state",
-          value: formData.state,
-          onChange: handleChange,
-          icon: "📍",
-          required: true
-        },
-          React.createElement('option', { value: "" }, t.selectState),
-          usStates.map(state => React.createElement('option', { key: state, value: state }, state)),
-          React.createElement('option', { value: "N/A" }, t.notUSResident)
+  const nationalityText = formData.nationality.trim().toLowerCase();
+  const shouldAskYearsInUS = nationalityText && !['usa', 'us', 'u.s.', 'united states', 'america'].includes(nationalityText);
+
+  return h('div', { className: 'relative px-5 pb-16 pt-8 sm:px-10' },
+    h(PageBackdrop),
+    h('div', { className: 'relative z-10 mx-auto max-w-5xl' },
+      h('div', { className: cn(APP_STYLES.panel, 'p-6 sm:p-8') },
+        h('div', { className: 'flex flex-wrap items-start justify-between gap-4' },
+          h('div', null,
+            h('p', { className: 'text-[11px] font-semibold uppercase tracking-[0.18em] text-tide-700' }, 'Smart Intake'),
+            h('h2', { className: 'mt-2 font-display text-3xl text-slate-900 sm:text-4xl' }, t.tellUsAbout),
+            h('p', { className: 'mt-3 max-w-3xl text-base text-slate-600' }, t.formDescription)
+          ),
+          h('span', { className: 'rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-600' },
+            'Estimated time: 2 min'
+          )
         )
       ),
-
-      // Conditional Nationality Input
-      formData.nationality && formData.nationality.toLowerCase() !== 'usa' && formData.nationality.toLowerCase() !== 'us' && 
-      React.createElement(FormInput, {
-        label: t.yearsInUS,
-        name: "yearsInUS",
-        type: "number",
-        value: formData.yearsInUS,
-        onChange: handleChange,
-        icon: "📍",
-        placeholder: "e.g., 3"
-      }),
-
-      // Status Grid
-      React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-        React.createElement(FormSelect, {
-          label: t.jobStatus,
-          name: "jobStatus",
-          value: formData.jobStatus,
-          onChange: handleChange,
-          icon: "💼"
-        },
-          React.createElement('option', null, t.employed),
-          React.createElement('option', null, t.selfEmployed),
-          React.createElement('option', null, t.unemployed),
-          React.createElement('option', null, t.retired)
+      h('form', { onSubmit: handleSubmit, className: 'mt-6 space-y-5' },
+        h('section', { className: APP_STYLES.section },
+          h('p', { className: 'text-sm font-semibold text-slate-900' }, 'Profile'),
+          h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
+            h(FormInput, {
+              label: t.nationality,
+              name: 'nationality',
+              value: formData.nationality,
+              onChange: handleChange,
+              placeholder: t.nationalityPlaceholder,
+              required: true
+            }),
+            h(FormSelect, {
+              label: t.state,
+              name: 'state',
+              value: formData.state,
+              onChange: handleChange,
+              required: true
+            },
+              h('option', { value: '' }, t.selectState),
+              US_STATES.map((state) => h('option', { key: state, value: state }, state)),
+              h('option', { value: 'N/A' }, t.notUSResident)
+            )
+          ),
+          shouldAskYearsInUS && h('div', { className: 'mt-4 max-w-md' },
+            h(FormInput, {
+              label: t.yearsInUS,
+              name: 'yearsInUS',
+              value: formData.yearsInUS,
+              onChange: handleChange,
+              type: 'number',
+              min: '0',
+              placeholder: 'e.g., 3'
+            })
+          )
         ),
-        
-        React.createElement(FormRadio, {
-          label: t.isStudent,
-          name: "isStudent",
-          value: formData.isStudent,
-          onChange: handleChange,
-          icon: "🎓",
-          options: [t.yes, t.no]
-        })
-      ),
-
-      // SSN Radio
-      React.createElement(FormRadio, {
-        label: t.hasSSN,
-        name: "hasSSN",
-        value: formData.hasSSN,
-        onChange: handleChange,
-        icon: "👤",
-        options: [t.yes, t.no]
-      }),
-
-      // Assets Grid
-      React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-        React.createElement(FormRadio, {
-          label: t.housingStatus,
-          name: "housingStatus",
-          value: formData.housingStatus,
-          onChange: handleChange,
-          icon: "🏠",
-          options: [t.rent, t.own]
-        }),
-        React.createElement(FormRadio, {
-          label: t.ownsCar,
-          name: "ownsCar",
-          value: formData.ownsCar,
-          onChange: handleChange,
-          icon: "🚗",
-          options: [t.yes, t.no]
-        })
-      ),
-
-      // Income Range
-      React.createElement(FormSelect, {
-        label: t.incomeRange,
-        name: "incomeRange",
-        value: formData.incomeRange,
-        onChange: handleChange,
-        icon: "💰",
-        required: true
-      },
-        React.createElement('option', { value: "" }, "Select income range"),
-        React.createElement('option', { value: "Under $12,000" }, "Under $12,000"),
-        React.createElement('option', { value: "$12,000 - $24,999" }, "$12,000 - $24,999"),
-        React.createElement('option', { value: "$25,000 - $49,999" }, "$25,000 - $49,999"),
-        React.createElement('option', { value: "$50,000 - $99,999" }, "$50,000 - $99,999"),
-        React.createElement('option', { value: "$100,000 - $200,000" }, "$100,000 - $200,000"),
-        React.createElement('option', { value: "Over $200,000" }, "Over $200,000")
-      ),
-
-      // Filing Status
-      React.createElement(FormSelect, {
-        label: t.filingStatus,
-        name: "filingStatus",
-        value: formData.filingStatus,
-        onChange: handleChange,
-        icon: "👫"
-      },
-        React.createElement('option', { value: "Single" }, t.single),
-        React.createElement('option', { value: "Married Filing Jointly" }, t.marriedFilingJointly),
-        React.createElement('option', { value: "Married Filing Separately" }, t.marriedFilingSeparately),
-        React.createElement('option', { value: "Head of Household" }, t.headOfHousehold),
-        React.createElement('option', { value: "Qualifying Widow(er)" }, "Qualifying Widow(er)")
-      ),
-
-      // Dependents Grid
-      React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-        React.createElement(FormSelect, {
-          label: t.dependents,
-          name: "dependents",
-          value: formData.dependents,
-          onChange: handleChange,
-          icon: "👶"
-        },
-          React.createElement('option', { value: "0" }, "0"),
-          React.createElement('option', { value: "1" }, "1"),
-          React.createElement('option', { value: "2" }, "2"),
-          React.createElement('option', { value: "3" }, "3"),
-          React.createElement('option', { value: "4" }, "4"),
-          React.createElement('option', { value: "5+" }, "5 or more")
+        h('section', { className: APP_STYLES.section },
+          h('p', { className: 'text-sm font-semibold text-slate-900' }, 'Status'),
+          h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
+            h(FormSelect, {
+              label: t.jobStatus,
+              name: 'jobStatus',
+              value: formData.jobStatus,
+              onChange: handleChange
+            },
+              optionSets.jobStatus.map((option) => h('option', { key: option.value, value: option.value }, option.label))
+            ),
+            h(FormRadio, {
+              label: t.isStudent,
+              name: 'isStudent',
+              value: formData.isStudent,
+              onChange: handleChange,
+              options: optionSets.yesNo
+            })
+          ),
+          h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
+            h(FormRadio, {
+              label: t.hasSSN,
+              name: 'hasSSN',
+              value: formData.hasSSN,
+              onChange: handleChange,
+              options: optionSets.yesNo
+            }),
+            h(FormRadio, {
+              label: t.hadJobChange,
+              name: 'hadJobChange',
+              value: formData.hadJobChange,
+              onChange: handleChange,
+              options: optionSets.yesNo
+            })
+          )
         ),
-        
-        React.createElement(FormRadio, {
-          label: t.hadJobChange,
-          name: "hadJobChange",
-          value: formData.hadJobChange,
-          onChange: handleChange,
-          icon: "💼",
-          options: [t.yes, t.no]
-        })
-      ),
-
-      // Itemized Deduction Question
-      React.createElement(FormRadio, {
-        label: t.itemizedPreviousYear,
-        name: "itemizedPreviousYear",
-        value: formData.itemizedPreviousYear,
-        onChange: handleChange,
-        icon: "📝",
-        options: [t.yes, t.no, "Don't remember"]
-      }),
-
-      // Income Sources
-      React.createElement(FormCheckboxGroup, {
-        label: t.incomeSources,
-        icon: "💰",
-        options: incomeOptions,
-        selected: formData.incomeSources,
-        onChange: handleCheckboxChange
-      }),
-
-      // Specifics Text Area
-      React.createElement(FormTextArea, {
-        label: t.specifics,
-        name: "specifics",
-        value: formData.specifics,
-        onChange: handleChange,
-        icon: "❓",
-        placeholder: "Example: I'm an international student from China with no SSN, but I invested in U.S. stocks."
-      }),
-
-      // Submit Button - using green for "go" action
-      React.createElement('div', { className: "pt-4 text-right" },
-        React.createElement('button', {
-          type: "submit",
-          className: "bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-xl text-xl shadow-lg transition-transform transform hover:scale-105 flex items-center justify-end ml-auto"
-        },
-          t.createPlan,
-          React.createElement('span', { className: "w-6 h-6 ml-3" }, '✨')
+        h('section', { className: APP_STYLES.section },
+          h('p', { className: 'text-sm font-semibold text-slate-900' }, 'Income & Deductions'),
+          h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
+            h(FormSelect, {
+              label: t.incomeRange,
+              name: 'incomeRange',
+              value: formData.incomeRange,
+              onChange: handleChange,
+              required: true
+            },
+              h('option', { value: '' }, 'Select income range'),
+              INCOME_RANGES.map((range) => h('option', { key: range, value: range }, range))
+            ),
+            h(FormSelect, {
+              label: t.filingStatus,
+              name: 'filingStatus',
+              value: formData.filingStatus,
+              onChange: handleChange
+            },
+              optionSets.filingStatus.map((option) => h('option', { key: option.value, value: option.value }, option.label))
+            )
+          ),
+          h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
+            h(FormRadio, {
+              label: t.housingStatus,
+              name: 'housingStatus',
+              value: formData.housingStatus,
+              onChange: handleChange,
+              options: optionSets.housingStatus
+            }),
+            h(FormRadio, {
+              label: t.ownsCar,
+              name: 'ownsCar',
+              value: formData.ownsCar,
+              onChange: handleChange,
+              options: optionSets.yesNo
+            })
+          ),
+          h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
+            h(FormSelect, {
+              label: t.dependents,
+              name: 'dependents',
+              value: formData.dependents,
+              onChange: handleChange
+            },
+              ['0', '1', '2', '3', '4', '5+'].map((count) => h('option', { key: count, value: count }, count === '5+' ? '5 or more' : count))
+            ),
+            h(FormRadio, {
+              label: t.itemizedPreviousYear,
+              name: 'itemizedPreviousYear',
+              value: formData.itemizedPreviousYear,
+              onChange: handleChange,
+              options: optionSets.itemizedPreviousYear
+            })
+          ),
+          h('div', { className: 'mt-4' },
+            h(FormCheckboxGroup, {
+              label: t.incomeSources,
+              options: optionSets.incomeSources,
+              selected: formData.incomeSources,
+              onChange: handleCheckboxChange
+            })
+          )
+        ),
+        h('section', { className: APP_STYLES.section },
+          h(FormTextArea, {
+            label: t.specifics,
+            name: 'specifics',
+            value: formData.specifics,
+            onChange: handleChange,
+            placeholder: "Example: I'm an international student with stock income and no SSN yet."
+          })
+        ),
+        h('div', { className: 'flex justify-end' },
+          h('button', {
+            type: 'submit',
+            className: cn(
+              'rounded-2xl bg-tide-700 px-7 py-4 text-base font-semibold text-white transition-all duration-300',
+              'shadow-lg shadow-tide-900/20 hover:-translate-y-0.5 hover:bg-tide-800 focus:outline-none focus:ring-4 focus:ring-tide-200'
+            )
+          }, t.createPlan)
         )
       )
     )
   );
 };
 
-// --- Form Helper Components ---
-const FormInput = ({ label, name, value, onChange, icon, ...props }) => React.createElement('div', null,
-  React.createElement('label', { htmlFor: name, className: "flex items-center text-base font-semibold text-slate-700 dark:text-slate-300 mb-3" },
-    icon && React.createElement('span', { className: "text-xl mr-3" }, icon),
-    label
-  ),
-  React.createElement('input', {
-    id: name,
-    name: name,
-    value: value,
-    onChange: onChange,
-    className: "w-full p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm hover:shadow-md text-lg",
-    ...props
-  })
-);
-
-const FormSelect = ({ label, name, value, onChange, icon, children, ...props }) => React.createElement('div', null,
-  React.createElement('label', { htmlFor: name, className: "flex items-center text-base font-semibold text-slate-700 dark:text-slate-300 mb-3" },
-    icon && React.createElement('span', { className: "text-xl mr-3" }, icon),
-    label
-  ),
-  React.createElement('select', {
-    id: name,
-    name: name,
-    value: value,
-    onChange: onChange,
-    className: "w-full p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm hover:shadow-md appearance-none cursor-pointer text-lg",
-    ...props
-  }, children)
-);
-
-const FormRadio = ({ label, name, value, onChange, icon, options }) => React.createElement('div', null,
-  React.createElement('label', { className: "flex items-center text-base font-semibold text-slate-700 dark:text-slate-300 mb-3" },
-    icon && React.createElement('span', { className: "text-xl mr-3" }, icon),
-    label
-  ),
-  React.createElement('div', { className: "flex space-x-6 mt-3" },
-    options.map(option => React.createElement('label', { key: option, className: "flex items-center cursor-pointer" },
-      React.createElement('input', {
-        type: "radio",
-        name: name,
-        value: option,
-        checked: value === option,
-        onChange: onChange,
-        className: "h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-600"
-      }),
-      React.createElement('span', { className: "ml-3 text-lg text-slate-800 dark:text-slate-200" }, option)
-    ))
-  )
-);
-
-const FormCheckboxGroup = ({ label, icon, options, selected, onChange }) => React.createElement('div', null,
-  React.createElement('label', { className: "flex items-center text-base font-semibold text-slate-700 dark:text-slate-300 mb-3" },
-    icon && React.createElement('span', { className: "text-xl mr-3" }, icon),
-    label
-  ),
-  React.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3" },
-    options.map(option => React.createElement('label', { key: option, className: "flex items-center p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer" },
-      React.createElement('input', {
-        type: "checkbox",
-        value: option,
-        checked: selected.includes(option),
-        onChange: onChange,
-        className: "h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-600 rounded"
-      }),
-      React.createElement('span', { className: "ml-3 text-lg text-slate-800 dark:text-slate-200" }, option)
-    ))
-  )
-);
-
-const FormTextArea = ({ label, name, value, onChange, icon, ...props }) => React.createElement('div', null,
-  React.createElement('label', { htmlFor: name, className: "flex items-center text-base font-semibold text-slate-700 dark:text-slate-300 mb-3" },
-    icon && React.createElement('span', { className: "text-xl mr-3" }, icon),
-    label
-  ),
-  React.createElement('textarea', {
-    id: name,
-    name: name,
-    value: value,
-    onChange: onChange,
-    rows: "4",
-    className: "w-full p-4 bg-slate-50 dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg",
-    ...props
-  })
-);
-
-/**
- * Step 3: Loading Screen
- */
-const LoadingScreen = ({ t }) => React.createElement('div', { className: "flex flex-col items-center justify-center min-h-screen p-20 text-center relative overflow-hidden" },
-  // Animated background - using calm colors
-  React.createElement('div', { className: "absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50" }),
-  React.createElement('div', { className: "absolute top-1/4 left-1/4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" }),
-  
-  // Content
-  React.createElement('div', { className: "relative z-10" },
-    // Animated icon - using blue theme
-    React.createElement('div', { className: "mb-8 relative" },
-      React.createElement('div', { className: "w-24 h-24 mx-auto bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl shadow-2xl flex items-center justify-center animate-bounce" },
-        React.createElement('svg', { className: "w-12 h-12 text-white animate-spin", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
-          React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" })
-        )
+const LoadingScreen = ({ t }) => h('section', { className: 'relative min-h-[70vh] px-5 py-20 sm:px-10' },
+  h(PageBackdrop),
+  h('div', { className: 'relative z-10 mx-auto max-w-xl' },
+    h('div', { className: cn(APP_STYLES.panel, 'p-10 text-center') },
+      h('div', { className: 'mx-auto h-16 w-16 rounded-full border-4 border-tide-100 border-t-tide-700 animate-spin' }),
+      h('h2', { className: 'mt-8 font-display text-4xl text-slate-900' }, t.analyzing),
+      h('p', { className: 'mt-3 text-base text-slate-600' }, t.creatingPlan),
+      h('div', { className: 'mt-8 space-y-3' },
+        h('div', { className: 'h-2 w-full overflow-hidden rounded-full bg-slate-100' },
+          h('div', { className: 'h-full w-2/3 rounded-full bg-tide-500 animate-pulse-soft' })
+        ),
+        h('p', { className: 'text-xs uppercase tracking-[0.16em] text-slate-500' }, 'Building personalized recommendations')
       )
-    ),
-    React.createElement('h2', { className: "text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-700 mt-6 mb-4" },
-      t.analyzing
-    ),
-    React.createElement('p', { className: "text-2xl text-slate-600 mb-8" },
-      t.creatingPlan
-    ),
-    // Loading dots - using blue theme
-    React.createElement('div', { className: "flex justify-center gap-3" },
-      React.createElement('div', { className: "w-4 h-4 bg-blue-500 rounded-full animate-bounce", style: { animationDelay: '0s' } }),
-      React.createElement('div', { className: "w-4 h-4 bg-blue-600 rounded-full animate-bounce", style: { animationDelay: '0.2s' } }),
-      React.createElement('div', { className: "w-4 h-4 bg-blue-700 rounded-full animate-bounce", style: { animationDelay: '0.4s' } })
     )
   )
 );
 
-/**
- * Helper component for rendering text with clickable links
- */
 const LinkedText = ({ text }) => {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const parts = text.split(urlRegex);
+  const urlOnlyRegex = /^https?:\/\/[^\s]+$/;
+  const parts = String(text || '').split(urlRegex);
 
-  return React.createElement('p', { className: "text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap" },
-    parts.map((part, index) =>
-      urlRegex.test(part) ? React.createElement('a', {
-        key: index,
-        href: part,
-        target: "_blank",
-        rel: "noopener noreferrer",
-        className: "text-blue-500 hover:underline break-all"
-      }, part) : React.createElement('span', { key: index }, part)
-    )
+  return h('p', { className: 'whitespace-pre-wrap text-sm leading-relaxed text-slate-700 sm:text-base' },
+    parts.map((part, index) => (
+      urlOnlyRegex.test(part)
+        ? h('a', {
+            key: index,
+            href: part,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            className: 'break-all text-tide-700 underline decoration-tide-300 underline-offset-4 hover:text-tide-800'
+          }, part)
+        : h('span', { key: index }, part)
+    ))
   );
 };
 
-/**
- * New Component: Step Detail Modal
- */
-const StepDetailModal = ({ step, onClose }) => React.createElement('div', { className: "fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-4" },
-  React.createElement('div', {
-    className: "bg-white dark:bg-slate-800 rounded-lg shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col",
+const StepDetailModal = ({ step, onClose }) => h('div', {
+  className: 'fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm',
+  onClick: onClose
+},
+  h('div', {
+    className: cn(APP_STYLES.panel, 'max-h-[85vh] w-full max-w-2xl overflow-hidden p-0'),
     onClick: (e) => e.stopPropagation()
   },
-    React.createElement('header', { className: "flex items-center justify-between p-4 border-b dark:border-slate-700" },
-      React.createElement('h3', { className: "text-xl font-semibold text-slate-900 dark:text-white" },
-        step.stepTitle
-      ),
-      React.createElement('button', {
+    h('header', { className: 'flex items-start justify-between border-b border-slate-200 px-6 py-4' },
+      h('h3', { className: 'pr-4 text-xl font-semibold text-slate-900' }, step.stepTitle),
+      h('button', {
         onClick: onClose,
-        className: "p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
-      }, '✕')
+        className: 'rounded-lg border border-slate-200 px-3 py-1 text-sm text-slate-500 transition hover:border-slate-300 hover:text-slate-700'
+      }, 'Close')
     ),
-    React.createElement('main', { className: "p-6 overflow-y-auto" },
-      React.createElement(LinkedText, { text: step.stepDetails })
-    ),
-    React.createElement('footer', { className: "p-4 border-t dark:border-slate-700 text-right" },
-      React.createElement('button', {
+    h('main', { className: 'max-h-[58vh] overflow-y-auto px-6 py-5' }, h(LinkedText, { text: step.stepDetails })),
+    h('footer', { className: 'border-t border-slate-200 px-6 py-4 text-right' },
+      h('button', {
         onClick: onClose,
-        className: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105"
-      }, "Got it")
+        className: 'rounded-xl bg-tide-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-tide-800'
+      }, 'Got it')
     )
   )
 );
 
-/**
- * New Component: Form Filing Page
- */
 const FormFilingPage = ({ form, onBack, language }) => {
   const [chatHistory, setChatHistory] = useState([]);
   const [userInput, setUserInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const chatBottomRef = useRef(null);
 
-  // PDF Viewer State
   const [pdfJsLoaded, setPdfJsLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [pdfFile, setPdfFile] = useState(null);
@@ -867,24 +869,23 @@ const FormFilingPage = ({ form, onBack, language }) => {
   const canvasRef = useRef(null);
   const dropAreaRef = useRef(null);
 
-  // Load pdf.js library dynamically
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js";
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js';
     script.async = true;
     script.onload = () => {
       if (window.pdfjsLib) {
         window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
         setPdfJsLoaded(true);
       } else {
-        setPdfError("Could not load PDF library. Please refresh the page.");
+        setPdfError('Could not load PDF library. Please refresh the page.');
       }
     };
     script.onerror = () => {
-      setPdfError("Failed to load PDF library. Please check your connection.");
+      setPdfError('Failed to load PDF library. Please check your connection.');
     };
     document.body.appendChild(script);
-    
+
     return () => {
       if (document.body.contains(script)) {
         document.body.removeChild(script);
@@ -892,43 +893,42 @@ const FormFilingPage = ({ form, onBack, language }) => {
     };
   }, []);
 
-  // Set the initial greeting from the bot
   useEffect(() => {
     setChatHistory([
       {
         role: 'model',
-        parts: [{ 
-          text: `Hi! I'm here to help you with Form ${form.formId}. 
-          
-Ask me anything about this form, like "How do I fill out line 10?" or "What does 'dependent' mean?"`
+        parts: [{
+          text: `Hi! I'm here to help you with Form ${form.formId}.\n\nAsk anything about this form, like "How do I fill out line 10?"`
         }]
       }
     ]);
   }, [form]);
 
-  // Render PDF when file changes
   useEffect(() => {
-    if (!pdfFile || !pdfJsLoaded || !canvasRef.current) return;
+    if (!pdfFile || !pdfJsLoaded || !canvasRef.current) {
+      return;
+    }
 
     setPdfError(null);
     const fileReader = new FileReader();
-    fileReader.onload = async function() {
+
+    fileReader.onload = async function onPdfLoaded() {
       try {
         const typedarray = new Uint8Array(this.result);
         const loadingTask = window.pdfjsLib.getDocument(typedarray);
         const pdf = await loadingTask.promise;
-        
         const page = await pdf.getPage(1);
-        
+
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
         const container = dropAreaRef.current;
-
-        if (!container) return;
+        if (!container) {
+          return;
+        }
 
         const viewport = page.getViewport({ scale: 1 });
         const scale = container.clientWidth / viewport.width;
-        const scaledViewport = page.getViewport({ scale: scale });
+        const scaledViewport = page.getViewport({ scale });
 
         canvas.height = scaledViewport.height;
         canvas.width = scaledViewport.width;
@@ -938,46 +938,42 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
           viewport: scaledViewport
         };
         page.render(renderContext);
-
       } catch (error) {
-        console.error("Error rendering PDF:", error);
-        setPdfError("Could not display this PDF. It may be corrupted.");
+        console.error('Error rendering PDF:', error);
+        setPdfError('Could not display this PDF. It may be corrupted.');
         setPdfFile(null);
       }
     };
-    
+
     fileReader.onerror = () => {
-      setPdfError("Failed to read the file.");
+      setPdfError('Failed to read the file.');
     };
 
     fileReader.readAsArrayBuffer(pdfFile);
-
-  }, [pdfFile, pdfJsLoaded, canvasRef, dropAreaRef]);
+  }, [pdfFile, pdfJsLoaded]);
 
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory]);
 
-  // THIS IS THE MODIFIED CHAT SUBMIT HANDLER
   const handleChatSubmit = async (e) => {
     e.preventDefault();
-    if (!userInput.trim()) return;
+    if (!userInput.trim()) {
+      return;
+    }
 
-    const newUserMessage = { role: "user", parts: [{ text: userInput }] };
+    const newUserMessage = { role: 'user', parts: [{ text: userInput }] };
     setChatLoading(true);
-    setChatHistory(prev => [...prev, newUserMessage]);
+    setChatHistory((prev) => [...prev, newUserMessage]);
     setUserInput('');
 
-    // Prepare history for the API
     const apiHistory = [
-      { role: "user", parts: [{ text: `I am asking about Form ${form.formId} (${form.formTitle}).` }]},
-      { role: "model", parts: [{ text: "Got it. I'm ready to help you with that form. What's your question?" }]},
-      ...chatHistory, 
-      // newUserMessage is NOT added here, it's sent as the new userQuery
+      { role: 'user', parts: [{ text: `I am asking about Form ${form.formId} (${form.formTitle}).` }] },
+      { role: 'model', parts: [{ text: "Got it. I'm ready to help you with that form. What's your question?" }] },
+      ...chatHistory
     ];
 
     try {
-      // If PDF is uploaded, convert it to base64 and send it
       let pdfBase64 = null;
       if (pdfFile) {
         pdfBase64 = await new Promise((resolve) => {
@@ -989,22 +985,19 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
           reader.readAsDataURL(pdfFile);
         });
       }
-      
-      // Call our new secure chat function with PDF data
+
       const aiResponseText = await fetchChatReply(userInput, apiHistory, pdfBase64, language);
-      
-      const newAiMessage = { role: "model", parts: [{ text: aiResponseText }] };
-      setChatHistory(prev => [...prev, newAiMessage]);
+      const newAiMessage = { role: 'model', parts: [{ text: aiResponseText }] };
+      setChatHistory((prev) => [...prev, newAiMessage]);
     } catch (error) {
-      console.error("Failed to get chat reply:", error);
-      const errorMessage = { role: "model", parts: [{ text: "Sorry, I couldn't connect to the AI assistant. Please try again." }] };
-      setChatHistory(prev => [...prev, errorMessage]);
+      console.error('Failed to get chat reply:', error);
+      const errorMessage = { role: 'model', parts: [{ text: "Sorry, I couldn't connect to the AI assistant. Please try again." }] };
+      setChatHistory((prev) => [...prev, errorMessage]);
     }
-    
+
     setChatLoading(false);
   };
 
-  // Drag and Drop Handlers
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -1027,280 +1020,229 @@ Ask me anything about this form, like "How do I fill out line 10?" or "What does
     if (file && file.type === 'application/pdf') {
       setPdfFile(file);
     } else {
-      setPdfError("Please drop a PDF file.");
+      setPdfError('Please drop a PDF file.');
     }
   };
-  
-  // Use Google search for IRS forms since the direct IRS form search is unreliable
+
   const formSearchUrl = `https://www.google.com/search?q=IRS+${encodeURIComponent(form.formId)}+form+${encodeURIComponent(form.formTitle)}`;
 
-  return React.createElement('div', { className: "max-w-7xl mx-auto p-4 md:p-8" },
-    React.createElement('button', {
-      onClick: onBack,
-      className: "flex items-center text-sm text-blue-500 hover:underline mb-4"
-    },
-      React.createElement('span', { className: "w-4 h-4 mr-1" }, '←'),
-      "Back to Tax Plan"
-    ),
-    
-    React.createElement('h2', { className: "text-3xl font-bold text-slate-900 dark:text-white mb-1" },
-      `Filing: ${form.formId}`
-    ),
-    React.createElement('p', { className: "text-lg text-slate-600 dark:text-slate-300 mb-6" }, form.formTitle),
-
-    React.createElement('div', { className: "flex flex-col lg:flex-row gap-8" },
-      // Left Side: Form Viewer
-      React.createElement('div', { className: "lg:w-1/2 bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md" },
-        React.createElement('h3', { className: "text-xl font-semibold text-slate-900 dark:text-white mb-2" },
-          "Form Preview"
-        ),
-        React.createElement('p', { className: "text-sm text-slate-500 dark:text-slate-400 mb-4" },
-          "Note: This is a read-only preview. You can't edit here. Drag your own PDF onto the area below!"
-        ),
-        React.createElement('div', {
-          ref: dropAreaRef,
-          className: `border-4 ${pdfFile ? 'border-slate-300 dark:border-slate-600' : 'border-dashed border-slate-300 dark:border-slate-600'} rounded-xl flex items-center justify-center text-slate-400 dark:text-slate-500 text-center relative transition-colors overflow-auto ${
-            isDragging ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-400' : ''
-          } ${pdfFile ? 'p-4 min-h-fit' : 'h-96 p-4'}`,
-          onDragOver: handleDragOver,
-          onDragLeave: handleDragLeave,
-          onDrop: handleDrop,
-          style: pdfFile ? {} : { minHeight: '400px' }
-        },
-          !pdfFile && React.createElement('div', { className: "flex flex-col items-center pointer-events-none" },
-            React.createElement('div', { className: `w-16 h-16 mb-4 ${isDragging ? 'text-blue-500' : 'text-slate-400'}` }, '📁'),
-            React.createElement('p', { className: "font-semibold" },
-              isDragging ? 'Drop your PDF here' : 'Drag & drop your PDF here'
-            ),
-            React.createElement('p', { className: "text-sm" }, "or"),
-            React.createElement('a', {
-              href: formSearchUrl,
-              target: "_blank",
-              rel: "noopener noreferrer",
-              className: "text-blue-500 hover:underline font-medium pointer-events-auto",
-              onClick: (e) => e.stopPropagation()
-            }, `Find ${form.formId} on IRS.gov`),
-            pdfError && React.createElement('p', { className: "text-red-500 text-sm mt-2" }, pdfError),
-            !pdfJsLoaded && !pdfError && React.createElement('div', { className: "flex items-center text-sm mt-2" },
-              React.createElement('span', { className: "w-4 h-4 mr-2 animate-spin" }, '⏳'),
-              "Loading PDF viewer..."
-            )
-          ),
-          pdfFile && React.createElement('canvas', {
-            ref: canvasRef,
-            className: "block max-w-full mx-auto shadow-lg rounded-lg"
-          })
-        )
+  return h('section', { className: 'relative px-5 pb-16 pt-8 sm:px-10' },
+    h(PageBackdrop),
+    h('div', { className: 'relative z-10 mx-auto max-w-7xl' },
+      h('button', {
+        onClick: onBack,
+        className: 'mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 transition hover:border-slate-300 hover:text-slate-900'
+      },
+        h('span', null, '←'),
+        'Back to Tax Plan'
       ),
-      
-      // Right Side: Chat Assistant
-      React.createElement('div', { className: "lg:w-1/2 bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md flex flex-col" },
-        React.createElement('div', { className: "flex items-center justify-between mb-4" },
-          React.createElement('h3', { className: "flex items-center text-xl font-semibold text-slate-900 dark:text-white" },
-            React.createElement('span', { className: "w-6 h-6 mr-3 text-purple-500" }, '❓'),
-            "Form Assistant"
-          ),
-          pdfFile && React.createElement('div', { className: "flex items-center text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full" },
-            React.createElement('span', { className: "mr-1" }, '👁️'),
-            "Can see PDF"
-          )
-        ),
-        
-        // Chat History
-        React.createElement('div', { className: "flex-1 h-80 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-700 rounded-lg mb-4 space-y-4" },
-          chatHistory.map((msg, index) => React.createElement('div', { key: index, className: `flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}` },
-            React.createElement('div', {
-              className: `max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl ${
-                msg.role === 'user'
-                  ? 'bg-blue-600 text-white rounded-br-none'
-                  : 'bg-slate-200 dark:bg-slate-600 text-slate-900 dark:text-white rounded-bl-none'
-              }`,
-              style: { whiteSpace: 'pre-wrap' }
-            }, msg.parts[0].text)
-          )),
-          chatLoading && React.createElement('div', { className: "flex justify-start" },
-            React.createElement('div', { className: "p-3 rounded-2xl bg-slate-200 dark:bg-slate-600 rounded-bl-none inline-flex items-center" },
-              React.createElement('div', { className: "w-2 h-2 bg-slate-500 rounded-full animate-bounce mx-1" }),
-              React.createElement('div', { className: "w-2 h-2 bg-slate-500 rounded-full animate-bounce mx-1", style: {animationDelay: '0.1s'} }),
-              React.createElement('div', { className: "w-2 h-2 bg-slate-500 rounded-full animate-bounce mx-1", style: {animationDelay: '0.2s'} })
+      h('div', { className: cn(APP_STYLES.panel, 'p-6 sm:p-8') },
+        h('h2', { className: 'font-display text-3xl text-slate-900 sm:text-4xl' }, `Filing: ${form.formId}`),
+        h('p', { className: 'mt-2 text-base text-slate-600' }, form.formTitle),
+        h('div', { className: 'mt-6 grid gap-6 lg:grid-cols-2' },
+          h('div', { className: cn(APP_STYLES.section, 'p-5 sm:p-6') },
+            h('div', { className: 'mb-3 flex items-center justify-between' },
+              h('h3', { className: 'text-lg font-semibold text-slate-900' }, 'Form Preview'),
+              pdfFile && h('span', { className: 'rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800' }, 'PDF loaded')
+            ),
+            h('p', { className: 'mb-4 text-sm text-slate-500' },
+              'Drag in your form PDF for visual reference. The assistant can also use the content when answering.'
+            ),
+            h('div', {
+              ref: dropAreaRef,
+              className: cn(
+                'relative rounded-2xl border-2 p-4 text-center transition',
+                pdfFile ? 'border-slate-300 bg-slate-50/70' : 'border-dashed border-slate-300 bg-white',
+                isDragging && 'border-tide-400 bg-tide-50'
+              ),
+              onDragOver: handleDragOver,
+              onDragLeave: handleDragLeave,
+              onDrop: handleDrop,
+              style: pdfFile ? {} : { minHeight: '380px' }
+            },
+              !pdfFile && h('div', { className: 'flex h-full min-h-[340px] flex-col items-center justify-center gap-3' },
+                h('div', { className: 'h-12 w-12 rounded-2xl border border-slate-200 bg-slate-50 text-2xl leading-[48px]' }, 'PDF'),
+                h('p', { className: 'text-sm font-semibold text-slate-700' }, isDragging ? 'Drop your PDF here' : 'Drag and drop your PDF here'),
+                h('a', {
+                  href: formSearchUrl,
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                  className: 'text-sm text-tide-700 underline decoration-tide-300 underline-offset-4 hover:text-tide-800',
+                  onClick: (e) => e.stopPropagation()
+                }, `Find ${form.formId} on IRS.gov`),
+                pdfError && h('p', { className: 'text-sm text-red-600' }, pdfError),
+                !pdfJsLoaded && !pdfError && h('p', { className: 'text-xs uppercase tracking-[0.16em] text-slate-500' }, 'Loading PDF engine')
+              ),
+              pdfFile && h('canvas', {
+                ref: canvasRef,
+                className: 'mx-auto block max-w-full rounded-xl border border-slate-200 bg-white shadow-sm'
+              })
             )
           ),
-          React.createElement('div', { ref: chatBottomRef })
-        ),
-
-        // Chat Input
-        React.createElement('form', { onSubmit: handleChatSubmit, className: "flex space-x-2" },
-          React.createElement('input', {
-            type: "text",
-            value: userInput,
-            onChange: (e) => setUserInput(e.target.value),
-            disabled: chatLoading,
-            placeholder: `Ask about ${form.formId}...`,
-            className: "flex-1 p-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          }),
-          React.createElement('button', {
-            type: "submit",
-            disabled: chatLoading,
-            className: "p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:bg-slate-400 disabled:cursor-not-allowed"
-          }, '📤')
+          h('div', { className: cn(APP_STYLES.section, 'flex h-full flex-col p-5 sm:p-6') },
+            h('h3', { className: 'text-lg font-semibold text-slate-900' }, 'Form Assistant'),
+            h('div', { className: 'mt-4 flex-1 space-y-3 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-4', style: { minHeight: '360px', maxHeight: '460px' } },
+              chatHistory.map((msg, index) => h('div', {
+                key: index,
+                className: cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')
+              },
+                h('div', {
+                  className: cn(
+                    'max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm',
+                    msg.role === 'user'
+                      ? 'rounded-br-md bg-tide-700 text-white'
+                      : 'rounded-bl-md border border-slate-200 bg-white text-slate-700'
+                  ),
+                  style: { whiteSpace: 'pre-wrap' }
+                }, msg.parts[0].text)
+              )),
+              chatLoading && h('div', { className: 'flex justify-start' },
+                h('div', { className: 'inline-flex items-center gap-1 rounded-2xl rounded-bl-md border border-slate-200 bg-white px-4 py-2 text-slate-500' },
+                  h('span', { className: 'h-2 w-2 rounded-full bg-slate-400 animate-pulse' }),
+                  h('span', { className: 'h-2 w-2 rounded-full bg-slate-400 animate-pulse', style: { animationDelay: '0.15s' } }),
+                  h('span', { className: 'h-2 w-2 rounded-full bg-slate-400 animate-pulse', style: { animationDelay: '0.3s' } })
+                )
+              ),
+              h('div', { ref: chatBottomRef })
+            ),
+            h('form', { onSubmit: handleChatSubmit, className: 'mt-4 flex gap-2' },
+              h('input', {
+                type: 'text',
+                value: userInput,
+                onChange: (e) => setUserInput(e.target.value),
+                disabled: chatLoading,
+                placeholder: `Ask about ${form.formId}...`,
+                className: 'flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-tide-600 focus:outline-none focus:ring-4 focus:ring-tide-100'
+              }),
+              h('button', {
+                type: 'submit',
+                disabled: chatLoading,
+                className: 'rounded-xl bg-tide-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-tide-800 disabled:cursor-not-allowed disabled:bg-slate-400'
+              }, 'Send')
+            )
+          )
         )
       )
     )
   );
 };
 
-/**
- * Step 4: Results Screen
- */
 const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail, t }) => {
   if (!response) {
-    return React.createElement('div', { className: "text-center p-8" },
-      React.createElement('div', { className: "w-12 h-12 mx-auto text-red-500" }, '⚠️'),
-      React.createElement('h2', { className: "text-2xl font-bold text-slate-900 dark:text-white mt-4" },
-        "Oops! Something went wrong."
-      ),
-      React.createElement('p', { className: "text-slate-600 dark:text-slate-300 mt-2" },
-        "We couldn't generate your tax plan."
-      ),
-      React.createElement('button', {
-        onClick: onReset,
-        className: "mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg"
-      }, "Try Again")
+    return h('div', { className: 'mx-auto max-w-xl px-5 py-16 text-center sm:px-10' },
+      h('div', { className: cn(APP_STYLES.panel, 'p-8') },
+        h('h2', { className: 'font-display text-3xl text-slate-900' }, 'Oops! Something went wrong.'),
+        h('p', { className: 'mt-2 text-slate-600' }, "We couldn't generate your tax plan."),
+        h('button', {
+          onClick: onReset,
+          className: 'mt-6 rounded-xl bg-tide-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-tide-800'
+        }, 'Try Again')
+      )
     );
   }
 
-  const { disclaimer, analysisSummary, requiredForms, nextSteps } = response;
+  const disclaimer = response.disclaimer || t.disclaimerText;
+  const analysisSummary = response.analysisSummary || '';
+  const requiredForms = Array.isArray(response.requiredForms) ? response.requiredForms : [];
+  const nextSteps = Array.isArray(response.nextSteps) ? response.nextSteps : [];
 
-  return React.createElement('div', { className: "max-w-4xl mx-auto p-4 md:p-8 space-y-8" },
-    // 1. The Plan
-    React.createElement('h2', { className: "text-4xl font-bold text-slate-900 dark:text-white" },
-      t.taxPlan
-    ),
-    
-    // Disclaimer - using soft yellow
-    React.createElement('div', { className: "p-6 bg-yellow-50 dark:bg-yellow-900 border-l-4 border-yellow-400 rounded-xl text-yellow-800 dark:text-yellow-200" },
-      React.createElement('div', { className: "flex" },
-        React.createElement('div', { className: "w-6 h-6 mr-3 flex-shrink-0" }, '⚠️'),
-        React.createElement('p', { className: "text-lg" },
-          React.createElement('strong', { className: "font-bold" }, t.quickReminder), ` ${disclaimer.replace('Please remember, ', '')}`
-        )
-      )
-    ),
-    
-    // Summary
-    React.createElement('div', { className: "bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg" },
-      React.createElement('h3', { className: "text-2xl font-semibold text-slate-900 dark:text-white mb-4" },
-        t.taxSummary
-      ),
-      React.createElement('p', { className: "text-lg text-slate-700 dark:text-slate-300 leading-relaxed" },
-        analysisSummary
-      )
-    ),
-
-    React.createElement('div', { className: "grid grid-cols-1 lg:grid-cols-2 gap-8" },
-      // Required Forms
-      React.createElement('div', { className: "bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg" },
-        React.createElement('h3', { className: "flex items-center text-2xl font-semibold text-slate-900 dark:text-white mb-6" },
-          React.createElement('span', { className: "w-7 h-7 mr-3 text-blue-500" }, '📄'),
-          t.requiredForms
+  return h('section', { className: 'relative px-5 pb-16 pt-8 sm:px-10' },
+    h(PageBackdrop),
+    h('div', { className: 'relative z-10 mx-auto max-w-6xl space-y-6' },
+      h('div', { className: cn(APP_STYLES.panel, 'p-6 sm:p-8') },
+        h('h2', { className: 'font-display text-3xl text-slate-900 sm:text-4xl' }, t.taxPlan),
+        h('div', { className: 'mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900' },
+          h('strong', { className: 'font-semibold' }, `${t.quickReminder} `),
+          disclaimer
         ),
-        React.createElement('ul', { className: "space-y-5" },
-          requiredForms.length > 0 ? 
-            requiredForms.map(form => React.createElement('li', { key: form.formId, className: "p-5 bg-slate-50 dark:bg-slate-700 rounded-xl" },
-              React.createElement('p', { className: "text-lg font-bold text-slate-800 dark:text-slate-100" },
-                `${form.formId}: ${form.formTitle}`
-              ),
-              React.createElement('p', { className: "text-base text-slate-600 dark:text-slate-300 mt-2" },
-                React.createElement('strong', { className: "text-slate-700 dark:text-slate-200" }, t.why), ` ${form.reason}`
-              )
-            )) :
-            React.createElement('p', { className: "text-lg text-slate-600 dark:text-slate-300" },
-              "Based on your answers, it looks like you may not need to file. Let's talk more in the chat!"
-            )
+        h('div', { className: 'mt-5 rounded-2xl border border-slate-200 bg-white px-4 py-4 sm:px-5' },
+          h('h3', { className: 'text-lg font-semibold text-slate-900' }, t.taxSummary),
+          h('p', { className: 'mt-2 text-sm leading-relaxed text-slate-600 sm:text-base' }, analysisSummary)
         )
       ),
-      
-      // Next Steps
-      React.createElement('div', { className: "bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg" },
-        React.createElement('h3', { className: "flex items-center text-2xl font-semibold text-slate-900 dark:text-white mb-6" },
-          React.createElement('span', { className: "w-7 h-7 mr-3 text-green-500" }, '✅'),
-          t.nextSteps
+      h('div', { className: 'grid gap-6 lg:grid-cols-2' },
+        h('div', { className: APP_STYLES.section },
+          h('h3', { className: 'text-xl font-semibold text-slate-900' }, t.requiredForms),
+          h('ul', { className: 'mt-4 space-y-3' },
+            requiredForms.length > 0
+              ? requiredForms.map((form) => h('li', {
+                  key: form.formId,
+                  className: 'rounded-2xl border border-slate-200 bg-slate-50 p-4'
+                },
+                  h('p', { className: 'font-semibold text-slate-900' }, `${form.formId}: ${form.formTitle}`),
+                  h('p', { className: 'mt-2 text-sm text-slate-600' }, h('strong', null, `${t.why} `), form.reason)
+                ))
+              : h('li', { className: 'rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' },
+                  'Based on your answers, it looks like you may not need to file. You can still verify details with the assistant.'
+                )
+          )
         ),
-        React.createElement('div', { className: "space-y-4" },
-          nextSteps.map((step, index) => React.createElement('button', {
-            key: index,
-            onClick: () => onShowStepDetail(step),
-            className: "w-full text-left p-5 bg-slate-50 dark:bg-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-          },
-            React.createElement('div', { className: "flex items-center" },
-              React.createElement('div', { className: "flex-shrink-0 w-7 h-7 bg-green-500 text-white rounded-full flex items-center justify-center text-base font-bold mr-4" },
-                index + 1
-              ),
-              React.createElement('span', { className: "flex-1 text-lg text-slate-800 dark:text-slate-100 font-medium" },
-                step.stepTitle
-              ),
-              React.createElement('span', { className: "w-6 h-6 text-slate-400 dark:text-slate-500" }, '→')
+        h('div', { className: APP_STYLES.section },
+          h('h3', { className: 'text-xl font-semibold text-slate-900' }, t.nextSteps),
+          h('div', { className: 'mt-4 space-y-3' },
+            nextSteps.length > 0
+              ? nextSteps.map((step, index) => h('button', {
+                  key: `${step.stepTitle}-${index}`,
+                  onClick: () => onShowStepDetail(step),
+                  className: cn(
+                    'w-full rounded-2xl border border-slate-200 bg-white p-4 text-left transition',
+                    'hover:border-tide-300 hover:bg-tide-50/40 focus:outline-none focus:ring-4 focus:ring-tide-100'
+                  )
+                },
+                  h('div', { className: 'flex items-start gap-3' },
+                    h('span', { className: 'inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-tide-700 text-xs font-semibold text-white' }, index + 1),
+                    h('span', { className: 'text-sm font-medium text-slate-800 sm:text-base' }, step.stepTitle)
+                  )
+                ))
+              : h('p', { className: 'rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' },
+                  'No additional steps were returned. You can start a new plan for more context.'
+                )
+          )
+        )
+      ),
+      h('div', { className: APP_STYLES.section },
+        h('h3', { className: 'text-2xl font-semibold text-slate-900' }, t.filingCenter),
+        h('p', { className: 'mt-2 text-sm text-slate-600 sm:text-base' }, t.filingCenterDesc),
+        requiredForms.length > 0
+          ? h('div', { className: 'mt-5 grid gap-3 md:grid-cols-2' },
+              requiredForms.map((form) => h('button', {
+                key: form.formId,
+                onClick: () => onStartFiling(form),
+                className: cn(
+                  'rounded-2xl border border-slate-200 bg-white p-5 text-left transition-all',
+                  'hover:-translate-y-0.5 hover:border-tide-300 hover:bg-tide-50/30 focus:outline-none focus:ring-4 focus:ring-tide-100'
+                )
+              },
+                h('p', { className: 'text-xl font-semibold text-slate-900' }, form.formId),
+                h('p', { className: 'mt-1 text-sm text-slate-600' }, form.formTitle),
+                h('p', { className: 'mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-tide-700' }, 'Open assistant →')
+              ))
             )
-          ))
-        )
+          : h('p', { className: 'mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' }, t.noForms)
+      ),
+      h('div', { className: 'text-center' },
+        h('button', {
+          onClick: onReset,
+          className: 'rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm text-slate-600 transition hover:border-slate-300 hover:text-slate-900'
+        }, t.startOver)
       )
-    ),
-    
-    // 2. The Form Filing Center
-    React.createElement('div', { className: "bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg mt-10" },
-      React.createElement('h3', { className: "flex items-center text-3xl font-semibold text-slate-900 dark:text-white mb-6" },
-        React.createElement('span', { className: "w-8 h-8 mr-3 text-blue-500" }, '📄'),
-        t.filingCenter
-      ),
-      React.createElement('p', { className: "text-xl text-slate-600 dark:text-slate-300 mb-8" },
-        t.filingCenterDesc
-      ),
-      
-      requiredForms.length > 0 ? 
-        React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-          requiredForms.map(form => React.createElement('button', {
-            key: form.formId,
-            onClick: () => onStartFiling(form),
-            className: "p-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
-          },
-            React.createElement('p', { className: "text-2xl font-bold mb-2" }, form.formId),
-            React.createElement('p', { className: "text-base font-light" }, form.formTitle)
-          ))
-        ) :
-        React.createElement('p', { className: "text-lg text-slate-600 dark:text-slate-300 text-center p-6 bg-slate-50 dark:bg-slate-700 rounded-xl" },
-          t.noForms
-        )
-    ),
-
-    // Reset Button
-    React.createElement('div', { className: "text-center pt-6" },
-      React.createElement('button', {
-        onClick: onReset,
-        className: "text-lg text-slate-500 dark:text-slate-400 hover:underline hover:text-slate-700 dark:hover:text-slate-200"
-      }, t.startOver)
     )
   );
 };
 
-
-/**
- * Main App Component
- */
 function App() {
-  const [language, setLanguage] = useState(null); // null = language selection screen
-  const [step, setStep] = useState('intro'); // 'intro', 'form', 'loading', 'results', 'filing'
+  const [language, setLanguage] = useState(null);
+  const [step, setStep] = useState('intro');
   const [formData, setFormData] = useState(null);
   const [aiResponse, setAiResponse] = useState(null);
   const [error, setError] = useState(null);
-  const [currentForm, setCurrentForm] = useState(null); // For the filing page
-  const [currentStepDetail, setCurrentStepDetail] = useState(null); // For the modal
+  const [currentForm, setCurrentForm] = useState(null);
+  const [currentStepDetail, setCurrentStepDetail] = useState(null);
 
-  // Get translations for current language
   const t = translations[language || 'en'];
 
-  // Show language selector if language not selected
   if (!language) {
-    return React.createElement(LanguageSelector, { onLanguageSelect: setLanguage });
+    return h(LanguageSelector, { onLanguageSelect: setLanguage });
   }
 
   const handleStart = () => {
@@ -1311,79 +1253,72 @@ function App() {
     setCurrentForm(null);
     setCurrentStepDetail(null);
   };
-  
+
   const handleLoading = () => {
     setStep('loading');
   };
 
-  // THIS IS THE MODIFIED SUBMIT HANDLER
   const handleSubmit = async (data) => {
     setFormData(data);
     setError(null);
 
-    // Create the user query from the form data
+    const incomeSources = data.incomeSources
+      .map((source) => getPromptValue(source, PROMPT_LABELS.incomeSources))
+      .join(', ');
+
     const userQuery = `Here is my tax situation. Please analyze it and provide a plan.
-- Nationality: ${data.nationality}
-${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US: ${data.yearsInUS || 'Not specified'}` : ''}
-- State: ${data.state}
-- Filing Status: ${data.filingStatus}
-- Annual Income: ${data.incomeRange}
-- Number of Dependents: ${data.dependents}
-- Job Status: ${data.jobStatus}
-- Changed Jobs Last Year: ${data.hadJobChange}
-- Has SSN/ITIN: ${data.hasSSN}
-- Is a student: ${data.isStudent}
-- Itemized Deductions Last Year: ${data.itemizedPreviousYear}
-- Housing Status: ${data.housingStatus}
-- Owns a car: ${data.ownsCar}
-- Income Sources: ${data.incomeSources.join(', ') || 'None listed'}
+- Nationality: ${data.nationality || 'Not specified'}
+${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].includes(data.nationality.trim().toLowerCase()) ? `- Years in US: ${data.yearsInUS || 'Not specified'}` : ''}
+- State: ${data.state || 'Not specified'}
+- Filing Status: ${getPromptValue(data.filingStatus, PROMPT_LABELS.filingStatus)}
+- Annual Income: ${data.incomeRange || 'Not specified'}
+- Number of Dependents: ${data.dependents || '0'}
+- Job Status: ${getPromptValue(data.jobStatus, PROMPT_LABELS.jobStatus)}
+- Changed Jobs Last Year: ${getPromptValue(data.hadJobChange, PROMPT_LABELS.yesNo)}
+- Has SSN/ITIN: ${getPromptValue(data.hasSSN, PROMPT_LABELS.yesNo)}
+- Is a student: ${getPromptValue(data.isStudent, PROMPT_LABELS.yesNo)}
+- Itemized Deductions Last Year: ${getPromptValue(data.itemizedPreviousYear, PROMPT_LABELS.itemizedPreviousYear)}
+- Housing Status: ${getPromptValue(data.housingStatus, PROMPT_LABELS.housingStatus)}
+- Owns a car: ${getPromptValue(data.ownsCar, PROMPT_LABELS.yesNo)}
+- Income Sources: ${incomeSources || 'None listed'}
 - Other details: ${data.specifics || 'None'}`;
-    
+
     try {
-      // 1. Call our new secure Netlify Function
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userQuery, language })
       };
-      
-      const response = await fetchWithBackoff("/.netlify/functions/getTaxPlan", options);
-      
-      // 2. The response body is the JSON *text*
+
+      const response = await fetchWithBackoff('/.netlify/functions/getTaxPlan', options);
       const responseText = await response.text();
-      
-      console.log("Raw AI response:", responseText);
-      
-      // 3. Now we parse the JSON text
       const parsedResponse = JSON.parse(responseText);
+
       setAiResponse(parsedResponse);
       setStep('results');
-      
     } catch (err) {
-      console.error("Failed to parse AI response:", err);
-      
-      let errorMessage = "An error occurred. ";
+      console.error('Failed to parse AI response:', err);
+
+      let errorMessage = 'An error occurred. ';
       if (err instanceof SyntaxError) {
-        // This is the error you were seeing
-        errorMessage += "The AI response was not in the correct format.";
+        errorMessage += 'The AI response was not in the correct format.';
       } else if (err.message) {
         errorMessage += err.message;
       }
-      errorMessage += " Please try again.";
-      
+      errorMessage += ' Please try again.';
+
       setError(errorMessage);
-      setStep('form'); // Go back to form on error
+      setStep('form');
     }
   };
-  
-  // New handlers for modal and filing page
+
   const handleStartFiling = (form) => {
     setCurrentForm(form);
     setStep('filing');
   };
 
-  const handleShowStepDetail = (step) => {
-    setCurrentStepDetail(step);
+  const handleShowStepDetail = (stepDetail) => {
+    setCurrentStepDetail(stepDetail);
   };
 
   const handleCloseModal = () => {
@@ -1393,78 +1328,94 @@ ${data.nationality && data.nationality.toLowerCase() !== 'usa' ? `- Years in US:
   const renderStep = () => {
     switch (step) {
       case 'intro':
-        return React.createElement(IntroScreen, { onStart: handleStart, t: t });
+        return h(IntroScreen, { onStart: handleStart, t });
       case 'form':
-        return React.createElement(IntakeForm, { onSubmit: handleSubmit, onLoading: handleLoading, t: t });
+        return h(IntakeForm, { onSubmit: handleSubmit, onLoading: handleLoading, t });
       case 'loading':
-        return React.createElement(LoadingScreen, { t: t });
+        return h(LoadingScreen, { t });
       case 'results':
-        return React.createElement(ResultsScreen, {
+        return h(ResultsScreen, {
           response: aiResponse,
           onReset: handleStart,
           onStartFiling: handleStartFiling,
           onShowStepDetail: handleShowStepDetail,
-          t: t
+          t
         });
       case 'filing':
-        return React.createElement(FormFilingPage, {
+        return h(FormFilingPage, {
           form: currentForm,
           onBack: () => {
             setStep('results');
             setCurrentForm(null);
           },
-          language: language
+          language
         });
       default:
-        return React.createElement(IntroScreen, { onStart: handleStart, t: t });
+        return h(IntroScreen, { onStart: handleStart, t });
     }
   };
 
-  return React.createElement('div', { className: "min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300" },
-    step !== 'intro' && React.createElement('header', { className: "bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg shadow-lg border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50" },
-      React.createElement('nav', { className: "max-w-7xl mx-auto p-6 flex justify-between items-center" },
-        React.createElement('div', { className: "flex items-center space-x-4" },
-          React.createElement('div', { className: "w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md" },
-            React.createElement('span', { className: "text-3xl" }, '📋')
-          ),
-          React.createElement('span', { className: "text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-700" }, "TaxPal")
+  const stepLabels = [
+    { key: 'form', label: 'Profile' },
+    { key: 'loading', label: 'Analyze' },
+    { key: 'results', label: 'Plan' },
+    { key: 'filing', label: 'Assist' }
+  ];
+  const activeIndex = stepLabels.findIndex((item) => item.key === step);
+
+  return h('div', { className: 'relative min-h-screen overflow-hidden bg-[#f4fbf9] font-sans text-slate-900' },
+    h('div', { className: 'pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_10%_15%,rgba(45,212,191,0.16),transparent_38%),radial-gradient(circle_at_88%_10%,rgba(251,191,36,0.16),transparent_34%),linear-gradient(180deg,#f8fffd_0%,#f3f9f7_60%,#eef6f4_100%)]' }),
+    step !== 'intro' && h('header', { className: 'sticky top-0 z-30 border-b border-white/60 bg-white/72 backdrop-blur-xl' },
+      h('nav', { className: 'mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-10' },
+        h('div', { className: 'flex items-center gap-3' },
+          h('div', { className: 'grid h-10 w-10 place-items-center rounded-xl bg-tide-700 text-sm font-semibold text-white shadow-sm' }, 'TP'),
+          h('div', null,
+            h('p', { className: 'text-lg font-semibold text-slate-900' }, 'TaxPal'),
+            h('p', { className: 'text-xs uppercase tracking-[0.14em] text-slate-500' }, 'Tax planner')
+          )
         ),
-        React.createElement('div', { className: "flex items-center space-x-4" },
-          React.createElement('select', {
+        h('div', { className: 'flex flex-wrap items-center gap-2 sm:gap-3' },
+          h('select', {
             value: language,
             onChange: (e) => setLanguage(e.target.value),
-            className: "px-4 py-2 text-base font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+            className: 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 focus:border-tide-500 focus:outline-none focus:ring-4 focus:ring-tide-100'
           },
-            React.createElement('option', { value: "en" }, "🇺🇸 English"),
-            React.createElement('option', { value: "es" }, "🇪🇸 Español"),
-            React.createElement('option', { value: "zh" }, "🇨🇳 中文")
+            h('option', { value: 'en' }, 'English'),
+            h('option', { value: 'es' }, 'Español'),
+            h('option', { value: 'zh' }, '中文')
           ),
-          React.createElement('button', {
+          h('button', {
             onClick: handleStart,
-            className: "px-6 py-3 text-lg font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-colors"
+            className: 'rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900'
           }, t.newPlan)
         )
+      ),
+      h('div', { className: 'mx-auto flex max-w-7xl gap-2 px-5 pb-4 sm:px-10' },
+        stepLabels.map((item, index) => h('div', {
+          key: item.key,
+          className: cn(
+            'rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] transition',
+            index <= activeIndex
+              ? 'bg-tide-700 text-white'
+              : 'bg-slate-100 text-slate-500'
+          )
+        }, item.label))
       )
     ),
-    React.createElement('main', null,
+    h('main', { className: 'relative z-10' },
       renderStep(),
-      error && React.createElement('div', { className: "max-w-3xl mx-auto p-4 -mt-4" },
-        React.createElement('div', { className: "bg-red-100 dark:bg-red-900 border-l-4 border-red-500 text-red-800 dark:text-red-200 p-4 rounded-lg" },
-          React.createElement('p', null,
-            React.createElement('strong', { className: "font-bold" }, "Error:"), ` ${error}`
-          )
+      error && h('div', { className: 'mx-auto max-w-3xl px-5 pb-8 sm:px-10' },
+        h('div', { className: 'rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700' },
+          h('strong', { className: 'font-semibold' }, 'Error: '),
+          error
         )
       )
     ),
-    
-    // Step Detail Modal
-    currentStepDetail && React.createElement(StepDetailModal, {
+    currentStepDetail && h(StepDetailModal, {
       step: currentStepDetail,
       onClose: handleCloseModal
     })
   );
 }
 
-// Export for use in HTML
 window.App = App;
-
