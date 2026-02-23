@@ -641,6 +641,17 @@ const buildLocalFallbackPlan = (data, language = 'en') => {
   };
 };
 
+const detectBrowserLanguage = () => {
+  const lang = (navigator.language || 'en').toLowerCase();
+  if (lang.startsWith('es')) {
+    return 'es';
+  }
+  if (lang.startsWith('zh')) {
+    return 'zh';
+  }
+  return 'en';
+};
+
 const PageBackdrop = () => h('div', { className: "pointer-events-none absolute inset-0 overflow-hidden" },
   h('div', { className: "absolute -left-28 top-10 h-64 w-64 rounded-full bg-tide-100/70 blur-3xl animate-drift" }),
   h('div', { className: "absolute -right-24 top-20 h-56 w-56 rounded-full bg-blue-100/65 blur-3xl animate-drift", style: { animationDelay: '2.4s' } }),
@@ -1957,7 +1968,13 @@ const ResultsScreen = ({
 };
 
 function App() {
-  const [language, setLanguage] = useState(() => safeStorageGet(STORAGE_KEYS.language, null));
+  const [language, setLanguage] = useState(() => {
+    const storedLanguage = safeStorageGet(STORAGE_KEYS.language, null);
+    if (['en', 'es', 'zh'].includes(storedLanguage)) {
+      return storedLanguage;
+    }
+    return detectBrowserLanguage();
+  });
   const [step, setStep] = useState('intro');
   const [formData, setFormData] = useState(null);
   const [aiResponse, setAiResponse] = useState(null);
@@ -1981,10 +1998,6 @@ function App() {
   useEffect(() => {
     safeStorageSet(STORAGE_KEYS.planHistory, planHistory);
   }, [planHistory]);
-
-  if (!language) {
-    return h(LanguageSelector, { onLanguageSelect: setLanguage });
-  }
 
   const handleStart = () => {
     setStep('form');
