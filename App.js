@@ -366,6 +366,25 @@ const getOptionSets = (t) => ({
 
 const getPromptValue = (value, dictionary) => dictionary[value] || value || 'Not specified';
 
+const APP_MESSAGES = {
+  en: {
+    quotaFallback: 'AI quota reached. Showing a local fallback plan so you can keep going.',
+    quotaChat: 'AI chat quota reached. You can still use the plan and checklist while quota resets.'
+  },
+  es: {
+    quotaFallback: 'Se alcanzó la cuota de IA. Mostramos un plan local para que puedas continuar.',
+    quotaChat: 'Se alcanzó la cuota de chat de IA. Aun así puedes usar el plan y la lista de documentos.'
+  },
+  zh: {
+    quotaFallback: 'AI 配额已用尽。已为你生成本地备用计划，你可以继续使用。',
+    quotaChat: 'AI 聊天配额已用尽。你仍可继续使用计划和材料清单。'
+  }
+};
+
+const getLocalizedMessage = (language, key) => {
+  return APP_MESSAGES[language]?.[key] || APP_MESSAGES.en[key] || '';
+};
+
 const safeStorageGet = (key, fallbackValue) => {
   try {
     const raw = window.localStorage.getItem(key);
@@ -517,6 +536,111 @@ const buildPlanSummaryText = ({ response, sourceFormData, generatedAt }) => {
   return lines.join('\n');
 };
 
+const buildLocalFallbackPlan = (data, language = 'en') => {
+  const nationality = String(data?.nationality || '').trim().toLowerCase();
+  const isLikelyNonUs = nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].includes(nationality);
+  const forms = [];
+  const pushForm = (formId, formTitle, reason) => {
+    if (!forms.some((item) => item.formId === formId)) {
+      forms.push({ formId, formTitle, reason });
+    }
+  };
+
+  if (isLikelyNonUs) {
+    pushForm('1040-NR', 'U.S. Nonresident Alien Income Tax Return', 'Commonly used for non-U.S. residents with U.S.-source income.');
+    if (data?.isStudent === 'yes') {
+      pushForm('8843', 'Statement for Exempt Individuals and Individuals With a Medical Condition', 'Often required for international students, even with low or no income.');
+    }
+  } else {
+    pushForm('1040', 'U.S. Individual Income Tax Return', 'Primary federal income tax return for U.S. residents.');
+  }
+
+  if (data?.incomeSources?.includes('selfEmployment')) {
+    pushForm('Schedule C', 'Profit or Loss From Business', 'Used to report self-employment or freelance income.');
+    pushForm('Schedule SE', 'Self-Employment Tax', 'Used to calculate self-employment tax when business income applies.');
+  }
+  if (data?.incomeSources?.includes('stockInvestments')) {
+    pushForm('Schedule D', 'Capital Gains and Losses', 'Used to summarize capital gains/losses from investments.');
+    pushForm('Form 8949', 'Sales and Other Dispositions of Capital Assets', 'Used to report individual investment sales transactions.');
+  }
+  if (data?.incomeSources?.includes('rentalIncome')) {
+    pushForm('Schedule E', 'Supplemental Income and Loss', 'Used to report rental income and related expenses.');
+  }
+  if (data?.itemizedPreviousYear === 'yes') {
+    pushForm('Schedule A', 'Itemized Deductions', 'Useful when itemized deductions may exceed the standard deduction.');
+  }
+
+  const documents = deriveDocumentChecklist(data, forms);
+  const riskAlerts = [];
+  if (data?.incomeSources?.includes('selfEmployment')) {
+    riskAlerts.push('Do not mix personal and business expenses when reporting deductions.');
+  }
+  if (data?.incomeSources?.includes('stockInvestments')) {
+    riskAlerts.push('Ensure brokerage 1099 forms are fully matched before filing.');
+  }
+  if (data?.hasSSN === 'no') {
+    riskAlerts.push('Identity/ITIN status can delay filing if supporting documents are missing.');
+  }
+  if (data?.incomeSources?.includes('cryptocurrency')) {
+    riskAlerts.push('Crypto transactions are often under-reported; reconcile all exchange exports.');
+  }
+
+  const fallbackDisclaimer = language === 'zh'
+    ? '当前为本地备用计划（AI 配额不足）。内容仅供参考，请咨询税务专业人士。'
+    : language === 'es'
+      ? 'Este es un plan local de respaldo (sin cuota de IA). Solo con fines informativos; consulte a un profesional de impuestos.'
+      : 'This is a local fallback plan (AI quota unavailable). For information only; consult a qualified tax professional.';
+
+  const fallbackSummary = language === 'zh'
+    ? '由于 AI 配额暂时不可用，我们根据你的输入生成了可执行的基础报税计划。'
+    : language === 'es'
+      ? 'Como la cuota de IA no está disponible por ahora, generamos un plan básico accionable según tus respuestas.'
+      : 'Because AI quota is currently unavailable, we generated a practical baseline plan from your inputs.';
+
+  return {
+    disclaimer: fallbackDisclaimer,
+    analysisSummary: fallbackSummary,
+    requiredForms: forms,
+    nextSteps: [
+      {
+        stepTitle: language === 'zh' ? '整理核心材料' : language === 'es' ? 'Reunir documentos clave' : 'Gather core documents',
+        stepDetails: language === 'zh'
+          ? '按清单收集 W-2/1099、身份证明和去年报税记录。'
+          : language === 'es'
+            ? 'Reúne W-2/1099, identificación y tu declaración del año anterior.'
+            : 'Collect W-2/1099 forms, identity docs, and last-year return before filing.'
+      },
+      {
+        stepTitle: language === 'zh' ? '确认报税身份与表格' : language === 'es' ? 'Confirmar estado y formularios' : 'Confirm filing status and forms',
+        stepDetails: language === 'zh'
+          ? '先确认申报身份，再逐项核对本计划列出的表格。'
+          : language === 'es'
+            ? 'Valida tu estado fiscal y revisa uno por uno los formularios sugeridos.'
+            : 'Validate filing status first, then review each suggested form in order.'
+      },
+      {
+        stepTitle: language === 'zh' ? '逐项填写并复核' : language === 'es' ? 'Completar y revisar' : 'Complete and review line-by-line',
+        stepDetails: language === 'zh'
+          ? '使用 Form Assistant 逐行核对关键字段，避免遗漏收入与身份信息。'
+          : language === 'es'
+            ? 'Usa Form Assistant para revisar línea por línea y evitar omisiones.'
+            : 'Use Form Assistant for line-by-line checks to avoid missing income or identity details.'
+      },
+      {
+        stepTitle: language === 'zh' ? '提交前做最终检查' : language === 'es' ? 'Verificación final antes de enviar' : 'Final pre-file check',
+        stepDetails: language === 'zh'
+          ? '重点检查姓名/身份号、收入总额、银行信息和签名。'
+          : language === 'es'
+            ? 'Verifica nombre/ID, total de ingresos, datos bancarios y firma.'
+            : 'Verify name/ID, total income, bank details, and signature before submission.'
+      }
+    ],
+    requiredDocuments: documents,
+    riskAlerts,
+    serviceNotice: getLocalizedMessage(language, 'quotaFallback')
+  };
+};
+
 const PageBackdrop = () => h('div', { className: "pointer-events-none absolute inset-0 overflow-hidden" },
   h('div', { className: "absolute -left-28 top-10 h-64 w-64 rounded-full bg-tide-100/70 blur-3xl animate-drift" }),
   h('div', { className: "absolute -right-24 top-20 h-56 w-56 rounded-full bg-blue-100/65 blur-3xl animate-drift", style: { animationDelay: '2.4s' } }),
@@ -534,18 +658,42 @@ const fetchWithBackoff = async (url, options, retries = 5, delay = 1000) => {
       const response = await fetch(url, options);
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
+        let errorCode = 'HTTP_ERROR';
+        let retryable = response.status >= 500 || response.status === 408;
         try {
           const errorBody = await response.json();
-          if (errorBody.error) {
+          if (errorBody?.error) {
             errorMessage = errorBody.error;
+          }
+          if (errorBody?.code) {
+            errorCode = errorBody.code;
+          }
+          if (typeof errorBody?.retryable === 'boolean') {
+            retryable = errorBody.retryable;
           }
         } catch (e) {
           errorMessage = `HTTP error! status: ${response.status} ${response.statusText}`;
         }
-        throw new Error(errorMessage);
+
+        const httpError = new Error(errorMessage);
+        httpError.status = response.status;
+        httpError.code = errorCode;
+        httpError.retryable = retryable;
+        throw httpError;
       }
       return response;
     } catch (error) {
+      const retryable = error.retryable !== false;
+      const status = error.status;
+      const transient = typeof status === 'number'
+        ? (status >= 500 || status === 408 || status === 429)
+        : true;
+      const shouldRetry = i < retries - 1 && retryable && transient;
+
+      if (!shouldRetry) {
+        throw error;
+      }
+
       console.warn(`Attempt ${i + 1} failed. Retrying in ${delay}ms...`);
       if (i === retries - 1) {
         console.error("All retry attempts failed.", error);
@@ -1278,7 +1426,11 @@ const FormFilingPage = ({ form, onBack, language }) => {
       setChatHistory((prev) => [...prev, newAiMessage]);
     } catch (error) {
       console.error('Failed to get chat reply:', error);
-      const errorMessage = { role: 'model', parts: [{ text: "Sorry, I couldn't connect to the AI assistant. Please try again." }] };
+      const isQuotaError = error?.code === 'QUOTA_EXCEEDED' || /quota|resource_exhausted|429/i.test(String(error?.message || ''));
+      const fallbackText = isQuotaError
+        ? getLocalizedMessage(language, 'quotaChat')
+        : "Sorry, I couldn't connect to the AI assistant. Please try again.";
+      const errorMessage = { role: 'model', parts: [{ text: fallbackText }] };
       setChatHistory((prev) => [...prev, errorMessage]);
     }
 
@@ -1529,6 +1681,7 @@ const ResultsScreen = ({
   const analysisSummary = response?.analysisSummary || '';
   const requiredForms = Array.isArray(response?.requiredForms) ? response.requiredForms : [];
   const nextSteps = Array.isArray(response?.nextSteps) ? response.nextSteps : [];
+  const serviceNotice = response?.serviceNotice || '';
   const requiredDocuments = Array.isArray(response?.requiredDocuments) && response.requiredDocuments.length > 0
     ? response.requiredDocuments
     : deriveDocumentChecklist(sourceFormData, requiredForms);
@@ -1623,6 +1776,7 @@ const ResultsScreen = ({
     h('div', { className: 'relative z-10 mx-auto max-w-6xl space-y-6' },
       h('div', { className: cn(APP_STYLES.panel, 'p-6 sm:p-8') },
         h('h2', { className: 'font-display text-3xl text-slate-900 sm:text-4xl' }, t.taxPlan),
+        serviceNotice && h('div', { className: 'mt-4 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900' }, serviceNotice),
         h('div', { className: 'mt-4 flex flex-wrap gap-2' },
           h('button', {
             type: 'button',
@@ -1896,9 +2050,34 @@ ${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].include
       setPlanHistory((prev) => [planRecord, ...prev].slice(0, MAX_PLAN_HISTORY));
       safeStorageRemove(STORAGE_KEYS.formDraft);
       safeStorageRemove(`${STORAGE_KEYS.formDraft}.savedAt`);
+      setError(null);
       setStep('results');
     } catch (err) {
       console.error('Failed to parse AI response:', err);
+
+      const isQuotaError = err?.code === 'QUOTA_EXCEEDED' || /quota|resource_exhausted|429/i.test(String(err?.message || ''));
+      if (isQuotaError) {
+        const fallbackPlan = buildLocalFallbackPlan(data, language);
+        const newPlanId = createPlanId();
+        const createdAt = new Date().toISOString();
+        const planRecord = {
+          id: newPlanId,
+          createdAt,
+          language,
+          formData: data,
+          response: fallbackPlan,
+          source: 'local-fallback'
+        };
+
+        setAiResponse(fallbackPlan);
+        setCurrentPlanId(newPlanId);
+        setPlanHistory((prev) => [planRecord, ...prev].slice(0, MAX_PLAN_HISTORY));
+        safeStorageRemove(STORAGE_KEYS.formDraft);
+        safeStorageRemove(`${STORAGE_KEYS.formDraft}.savedAt`);
+        setError(null);
+        setStep('results');
+        return;
+      }
 
       let errorMessage = 'An error occurred. ';
       if (err instanceof SyntaxError) {

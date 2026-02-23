@@ -84,6 +84,14 @@ const TAX_PLAN_SCHEMA = {
   },
   "required": ["disclaimer", "analysisSummary", "requiredForms", "nextSteps"]
 };
+
+const buildClientError = (statusCode, error, code, retryable = false) => ({
+  statusCode,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ error, code, retryable })
+});
  
 exports.handler = async (event) => {
   // Read the secret API key from Netlify's environment variables
@@ -98,7 +106,7 @@ exports.handler = async (event) => {
     };
   }
   
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${API_KEY}`;
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
 
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
@@ -136,10 +144,42 @@ exports.handler = async (event) => {
     });
 
     if (!apiResponse.ok) {
-      const errorBody = await apiResponse.text();
-      console.error("Google API error:", errorBody);
-      // Pass the error from Google back to the client
-      throw new Error(`Google API error! status: ${apiResponse.status} \nDetails: ${errorBody}`);
+      const errorBodyText = await apiResponse.text();
+      console.error("Google API error:", errorBodyText);
+
+      let providerMessage = '';
+      try {
+        const parsed = JSON.parse(errorBodyText);
+        providerMessage = parsed?.error?.message || '';
+      } catch (parseError) {
+        providerMessage = '';
+      }
+
+      const isQuotaError = apiResponse.status === 429 || /quota|resource_exhausted/i.test(providerMessage);
+      if (isQuotaError) {
+        return buildClientError(
+          429,
+          'AI quota exceeded. Please enable billing or retry tomorrow.',
+          'QUOTA_EXCEEDED',
+          false
+        );
+      }
+
+      if (apiResponse.status >= 500) {
+        return buildClientError(
+          503,
+          'AI service is temporarily unavailable. Please try again shortly.',
+          'UPSTREAM_TEMPORARY_UNAVAILABLE',
+          true
+        );
+      }
+
+      return buildClientError(
+        502,
+        'AI service returned an invalid response.',
+        'UPSTREAM_ERROR',
+        false
+      );
     }
 
     const result = await apiResponse.json();
@@ -158,15 +198,11 @@ exports.handler = async (event) => {
 
   } catch (error) {
     console.error("Error in serverless function:", error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        error: error.message || "An error occurred processing your request",
-        details: error.toString()
-      })
-    };
+    return buildClientError(
+      500,
+      error.message || 'An error occurred processing your request',
+      'TAX_PLAN_HANDLER_ERROR',
+      false
+    );
   }
 };
