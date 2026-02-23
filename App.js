@@ -300,6 +300,33 @@ const INCOME_RANGES = [
   'Over $200,000'
 ];
 
+const STORAGE_KEYS = {
+  language: 'taxpal.language.v1',
+  formDraft: 'taxpal.formDraft.v1',
+  planHistory: 'taxpal.planHistory.v1',
+  checklistPrefix: 'taxpal.checklist.v1'
+};
+
+const MAX_PLAN_HISTORY = 8;
+
+const SAMPLE_FORM_DATA = {
+  nationality: 'China',
+  state: 'CA',
+  yearsInUS: '3',
+  jobStatus: 'employed',
+  isStudent: 'yes',
+  hasSSN: 'no',
+  housingStatus: 'rent',
+  ownsCar: 'no',
+  incomeRange: '$25,000 - $49,999',
+  filingStatus: 'single',
+  dependents: '0',
+  hadJobChange: 'no',
+  itemizedPreviousYear: 'notSure',
+  incomeSources: ['w2Salary', 'stockInvestments'],
+  specifics: 'I am an international student and also have U.S. stock dividends.'
+};
+
 const getOptionSets = (t) => ({
   jobStatus: [
     { value: 'employed', label: t.employed },
@@ -338,6 +365,157 @@ const getOptionSets = (t) => ({
 });
 
 const getPromptValue = (value, dictionary) => dictionary[value] || value || 'Not specified';
+
+const safeStorageGet = (key, fallbackValue) => {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) {
+      return fallbackValue;
+    }
+    return JSON.parse(raw);
+  } catch (error) {
+    console.warn(`Failed to read storage key "${key}"`, error);
+    return fallbackValue;
+  }
+};
+
+const safeStorageSet = (key, value) => {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.warn(`Failed to write storage key "${key}"`, error);
+  }
+};
+
+const safeStorageRemove = (key) => {
+  try {
+    window.localStorage.removeItem(key);
+  } catch (error) {
+    console.warn(`Failed to remove storage key "${key}"`, error);
+  }
+};
+
+const getCompletionPercent = (formData, shouldAskYearsInUS) => {
+  const checks = [
+    Boolean(formData.nationality && formData.nationality.trim()),
+    Boolean(formData.state),
+    Boolean(formData.incomeRange),
+    Boolean(formData.filingStatus),
+    Array.isArray(formData.incomeSources) && formData.incomeSources.length > 0,
+    !shouldAskYearsInUS || Boolean(formData.yearsInUS && String(formData.yearsInUS).trim())
+  ];
+  const completed = checks.filter(Boolean).length;
+  return Math.round((completed / checks.length) * 100);
+};
+
+const createPlanId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
+const formatDateTime = (isoString) => {
+  try {
+    return new Date(isoString).toLocaleString([], {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    return '';
+  }
+};
+
+const getChecklistStorageKey = (planId) => `${STORAGE_KEYS.checklistPrefix}.${planId}`;
+
+const deriveDocumentChecklist = (sourceFormData, requiredForms) => {
+  const docs = new Set([
+    'Photo ID',
+    'Last year tax return (if available)'
+  ]);
+
+  if (!sourceFormData) {
+    return Array.from(docs);
+  }
+
+  if (sourceFormData.hasSSN === 'yes') {
+    docs.add('SSN or ITIN documentation');
+  } else {
+    docs.add('Any IRS notice related to ITIN/identity status');
+  }
+
+  if (sourceFormData.incomeSources?.includes('w2Salary')) {
+    docs.add('W-2 statements from employers');
+  }
+  if (sourceFormData.incomeSources?.includes('selfEmployment')) {
+    docs.add('1099-NEC/1099-MISC and business expense records');
+  }
+  if (sourceFormData.incomeSources?.includes('stockInvestments')) {
+    docs.add('1099-B, 1099-DIV, and brokerage statements');
+  }
+  if (sourceFormData.incomeSources?.includes('rentalIncome')) {
+    docs.add('Rental income and expense records');
+  }
+  if (sourceFormData.incomeSources?.includes('cryptocurrency')) {
+    docs.add('Crypto transaction export from exchanges/wallets');
+  }
+
+  if (Array.isArray(requiredForms)) {
+    requiredForms.forEach((form) => {
+      if (String(form.formId || '').includes('1098')) {
+        docs.add('Tuition/mortgage statements related to Form 1098');
+      }
+      if (String(form.formId || '').includes('1040')) {
+        docs.add('Bank account details for refund/direct debit setup');
+      }
+    });
+  }
+
+  return Array.from(docs);
+};
+
+const buildPlanSummaryText = ({ response, sourceFormData, generatedAt }) => {
+  const requiredForms = Array.isArray(response?.requiredForms) ? response.requiredForms : [];
+  const nextSteps = Array.isArray(response?.nextSteps) ? response.nextSteps : [];
+  const documents = Array.isArray(response?.requiredDocuments) && response.requiredDocuments.length > 0
+    ? response.requiredDocuments
+    : deriveDocumentChecklist(sourceFormData, requiredForms);
+
+  const lines = [
+    'TaxPal Plan Export',
+    `Generated: ${generatedAt ? formatDateTime(generatedAt) : formatDateTime(new Date().toISOString())}`,
+    '',
+    `Summary: ${response?.analysisSummary || ''}`,
+    '',
+    'Required Forms:'
+  ];
+
+  if (requiredForms.length === 0) {
+    lines.push('- None identified');
+  } else {
+    requiredForms.forEach((form) => {
+      lines.push(`- ${form.formId}: ${form.formTitle}`);
+      if (form.reason) {
+        lines.push(`  Why: ${form.reason}`);
+      }
+    });
+  }
+
+  lines.push('', 'Recommended Next Steps:');
+  if (nextSteps.length === 0) {
+    lines.push('- No steps returned by assistant');
+  } else {
+    nextSteps.forEach((step, index) => {
+      lines.push(`${index + 1}. ${step.stepTitle}`);
+      if (step.stepDetails) {
+        lines.push(`   ${step.stepDetails}`);
+      }
+    });
+  }
+
+  lines.push('', 'Document Checklist:');
+  documents.forEach((item) => lines.push(`- ${item}`));
+  lines.push('', `Disclaimer: ${response?.disclaimer || ''}`);
+  return lines.join('\n');
+};
 
 const PageBackdrop = () => h('div', { className: "pointer-events-none absolute inset-0 overflow-hidden" },
   h('div', { className: "absolute -left-28 top-10 h-64 w-64 rounded-full bg-tide-100/70 blur-3xl animate-drift" }),
@@ -593,7 +771,13 @@ const FormTextArea = ({ label, name, value, onChange, ...props }) => h('label', 
 );
 
 const IntakeForm = ({ onSubmit, onLoading, t }) => {
-  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
+  const [formData, setFormData] = useState(() => ({
+    ...DEFAULT_FORM_DATA,
+    ...safeStorageGet(STORAGE_KEYS.formDraft, {})
+  }));
+  const [validationError, setValidationError] = useState('');
+  const [draftSavedAt, setDraftSavedAt] = useState(() => safeStorageGet(`${STORAGE_KEYS.formDraft}.savedAt`, null));
+  const skipAutosaveRef = useRef(false);
   const optionSets = getOptionSets(t);
 
   const handleChange = (e) => {
@@ -611,14 +795,67 @@ const IntakeForm = ({ onSubmit, onLoading, t }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onLoading();
-    onSubmit(formData);
+  const handleUseSample = () => {
+    setValidationError('');
+    setFormData({
+      ...DEFAULT_FORM_DATA,
+      ...SAMPLE_FORM_DATA
+    });
+  };
+
+  const handleClearDraft = () => {
+    setValidationError('');
+    skipAutosaveRef.current = true;
+    setFormData(DEFAULT_FORM_DATA);
+    safeStorageRemove(STORAGE_KEYS.formDraft);
+    safeStorageRemove(`${STORAGE_KEYS.formDraft}.savedAt`);
+    setDraftSavedAt(null);
   };
 
   const nationalityText = formData.nationality.trim().toLowerCase();
   const shouldAskYearsInUS = nationalityText && !['usa', 'us', 'u.s.', 'united states', 'america'].includes(nationalityText);
+  const completionPercent = getCompletionPercent(formData, shouldAskYearsInUS);
+
+  useEffect(() => {
+    if (skipAutosaveRef.current) {
+      skipAutosaveRef.current = false;
+      return;
+    }
+    safeStorageSet(STORAGE_KEYS.formDraft, formData);
+    const now = new Date().toISOString();
+    safeStorageSet(`${STORAGE_KEYS.formDraft}.savedAt`, now);
+    setDraftSavedAt(now);
+  }, [formData]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const missing = [];
+
+    if (!formData.nationality.trim()) {
+      missing.push('nationality');
+    }
+    if (!formData.state) {
+      missing.push('state');
+    }
+    if (!formData.incomeRange) {
+      missing.push('income range');
+    }
+    if (shouldAskYearsInUS && !String(formData.yearsInUS || '').trim()) {
+      missing.push('years in U.S.');
+    }
+    if (!formData.incomeSources.length) {
+      missing.push('at least one income source');
+    }
+
+    if (missing.length > 0) {
+      setValidationError(`Please complete: ${missing.join(', ')}.`);
+      return;
+    }
+
+    setValidationError('');
+    onLoading();
+    onSubmit(formData);
+  };
 
   return h('div', { className: 'relative px-5 pb-16 pt-8 sm:px-10' },
     h(PageBackdrop),
@@ -630,12 +867,31 @@ const IntakeForm = ({ onSubmit, onLoading, t }) => {
             h('h2', { className: 'mt-2 font-display text-3xl text-slate-900 sm:text-4xl' }, t.tellUsAbout),
             h('p', { className: 'mt-3 max-w-3xl text-base text-slate-600' }, t.formDescription)
           ),
-          h('span', { className: 'rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-600' },
-            'Estimated time: 2 min'
+          h('div', { className: 'text-right' },
+            h('span', { className: 'rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-600' },
+              `Profile ${completionPercent}% complete`
+            ),
+            draftSavedAt && h('p', { className: 'mt-2 text-xs text-slate-500' }, `Draft saved ${formatDateTime(draftSavedAt)}`)
           )
+        ),
+        h('div', { className: 'mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-200' },
+          h('div', { className: 'h-full rounded-full bg-tide-600 transition-all duration-300', style: { width: `${completionPercent}%` } })
+        ),
+        h('div', { className: 'mt-4 flex flex-wrap gap-2' },
+          h('button', {
+            type: 'button',
+            onClick: handleUseSample,
+            className: 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900'
+          }, 'Use sample profile'),
+          h('button', {
+            type: 'button',
+            onClick: handleClearDraft,
+            className: 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900'
+          }, 'Clear saved draft')
         )
       ),
       h('form', { onSubmit: handleSubmit, className: 'mt-6 space-y-5' },
+        validationError && h('div', { className: 'rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700' }, validationError),
         h('section', { className: APP_STYLES.section },
           h('p', { className: 'text-sm font-semibold text-slate-900' }, 'Profile'),
           h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
@@ -860,14 +1116,19 @@ const FormFilingPage = ({ form, onBack, language }) => {
   const [chatHistory, setChatHistory] = useState([]);
   const [userInput, setUserInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
+  const [copiedStatus, setCopiedStatus] = useState('');
   const chatBottomRef = useRef(null);
 
   const [pdfJsLoaded, setPdfJsLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [pdfFile, setPdfFile] = useState(null);
   const [pdfError, setPdfError] = useState(null);
+  const [currentPdfPage, setCurrentPdfPage] = useState(1);
+  const [totalPdfPages, setTotalPdfPages] = useState(1);
   const canvasRef = useRef(null);
   const dropAreaRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const pdfDocumentRef = useRef(null);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -902,7 +1163,30 @@ const FormFilingPage = ({ form, onBack, language }) => {
         }]
       }
     ]);
+    setCopiedStatus('');
   }, [form]);
+
+  const renderPdfPage = async (pdf, pageNumber) => {
+    const canvas = canvasRef.current;
+    const container = dropAreaRef.current;
+    if (!canvas || !container || !pdf) {
+      return;
+    }
+
+    const page = await pdf.getPage(pageNumber);
+    const context = canvas.getContext('2d');
+    const viewport = page.getViewport({ scale: 1 });
+    const scale = Math.min(container.clientWidth / viewport.width, 1.6);
+    const scaledViewport = page.getViewport({ scale });
+
+    canvas.height = scaledViewport.height;
+    canvas.width = scaledViewport.width;
+
+    await page.render({
+      canvasContext: context,
+      viewport: scaledViewport
+    }).promise;
+  };
 
   useEffect(() => {
     if (!pdfFile || !pdfJsLoaded || !canvasRef.current) {
@@ -910,6 +1194,7 @@ const FormFilingPage = ({ form, onBack, language }) => {
     }
 
     setPdfError(null);
+    let canceled = false;
     const fileReader = new FileReader();
 
     fileReader.onload = async function onPdfLoaded() {
@@ -917,31 +1202,18 @@ const FormFilingPage = ({ form, onBack, language }) => {
         const typedarray = new Uint8Array(this.result);
         const loadingTask = window.pdfjsLib.getDocument(typedarray);
         const pdf = await loadingTask.promise;
-        const page = await pdf.getPage(1);
-
-        const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
-        const container = dropAreaRef.current;
-        if (!container) {
+        if (canceled) {
           return;
         }
-
-        const viewport = page.getViewport({ scale: 1 });
-        const scale = container.clientWidth / viewport.width;
-        const scaledViewport = page.getViewport({ scale });
-
-        canvas.height = scaledViewport.height;
-        canvas.width = scaledViewport.width;
-
-        const renderContext = {
-          canvasContext: context,
-          viewport: scaledViewport
-        };
-        page.render(renderContext);
+        pdfDocumentRef.current = pdf;
+        setTotalPdfPages(pdf.numPages || 1);
+        setCurrentPdfPage(1);
+        await renderPdfPage(pdf, 1);
       } catch (error) {
         console.error('Error rendering PDF:', error);
         setPdfError('Could not display this PDF. It may be corrupted.');
         setPdfFile(null);
+        pdfDocumentRef.current = null;
       }
     };
 
@@ -950,7 +1222,21 @@ const FormFilingPage = ({ form, onBack, language }) => {
     };
 
     fileReader.readAsArrayBuffer(pdfFile);
+
+    return () => {
+      canceled = true;
+    };
   }, [pdfFile, pdfJsLoaded]);
+
+  useEffect(() => {
+    if (!pdfDocumentRef.current || !pdfFile) {
+      return;
+    }
+    renderPdfPage(pdfDocumentRef.current, currentPdfPage).catch((error) => {
+      console.error('Failed to render selected PDF page', error);
+      setPdfError('Could not render this page.');
+    });
+  }, [currentPdfPage, pdfFile]);
 
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -958,11 +1244,12 @@ const FormFilingPage = ({ form, onBack, language }) => {
 
   const handleChatSubmit = async (e) => {
     e.preventDefault();
-    if (!userInput.trim()) {
+    const trimmedInput = userInput.trim();
+    if (!trimmedInput) {
       return;
     }
 
-    const newUserMessage = { role: 'user', parts: [{ text: userInput }] };
+    const newUserMessage = { role: 'user', parts: [{ text: trimmedInput }] };
     setChatLoading(true);
     setChatHistory((prev) => [...prev, newUserMessage]);
     setUserInput('');
@@ -986,7 +1273,7 @@ const FormFilingPage = ({ form, onBack, language }) => {
         });
       }
 
-      const aiResponseText = await fetchChatReply(userInput, apiHistory, pdfBase64, language);
+      const aiResponseText = await fetchChatReply(trimmedInput, apiHistory, pdfBase64, language);
       const newAiMessage = { role: 'model', parts: [{ text: aiResponseText }] };
       setChatHistory((prev) => [...prev, newAiMessage]);
     } catch (error) {
@@ -996,6 +1283,15 @@ const FormFilingPage = ({ form, onBack, language }) => {
     }
 
     setChatLoading(false);
+  };
+
+  const setPdfFromFile = (file) => {
+    if (file && file.type === 'application/pdf') {
+      setPdfError(null);
+      setPdfFile(file);
+    } else {
+      setPdfError('Please upload a PDF file.');
+    }
   };
 
   const handleDragOver = (e) => {
@@ -1014,15 +1310,43 @@ const FormFilingPage = ({ form, onBack, language }) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    setPdfError(null);
+    setPdfFromFile(e.dataTransfer.files[0]);
+  };
 
-    const file = e.dataTransfer.files[0];
-    if (file && file.type === 'application/pdf') {
-      setPdfFile(file);
-    } else {
-      setPdfError('Please drop a PDF file.');
+  const handleFileInputChange = (e) => {
+    setPdfFromFile(e.target.files?.[0]);
+  };
+
+  const handleRemovePdf = () => {
+    setPdfFile(null);
+    setPdfError(null);
+    setCurrentPdfPage(1);
+    setTotalPdfPages(1);
+    pdfDocumentRef.current = null;
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
+
+  const handleCopyChat = async () => {
+    const transcript = chatHistory
+      .map((entry) => `${entry.role === 'user' ? 'You' : 'TaxPal'}: ${entry.parts?.[0]?.text || ''}`)
+      .join('\n\n');
+    try {
+      await navigator.clipboard.writeText(transcript);
+      setCopiedStatus('Transcript copied');
+    } catch (error) {
+      console.warn('Failed to copy transcript', error);
+      setCopiedStatus('Copy failed');
+    }
+    setTimeout(() => setCopiedStatus(''), 1800);
+  };
+
+  const quickPrompts = [
+    `What documents do I need before filling ${form.formId}?`,
+    `Explain this form in plain English, line by line.`,
+    `What mistakes should I avoid on ${form.formId}?`
+  ];
 
   const formSearchUrl = `https://www.google.com/search?q=IRS+${encodeURIComponent(form.formId)}+form+${encodeURIComponent(form.formTitle)}`;
 
@@ -1041,12 +1365,30 @@ const FormFilingPage = ({ form, onBack, language }) => {
         h('p', { className: 'mt-2 text-base text-slate-600' }, form.formTitle),
         h('div', { className: 'mt-6 grid gap-6 lg:grid-cols-2' },
           h('div', { className: cn(APP_STYLES.section, 'p-5 sm:p-6') },
-            h('div', { className: 'mb-3 flex items-center justify-between' },
+            h('div', { className: 'mb-3 flex flex-wrap items-center justify-between gap-2' },
               h('h3', { className: 'text-lg font-semibold text-slate-900' }, 'Form Preview'),
-              pdfFile && h('span', { className: 'rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800' }, 'PDF loaded')
+              h('div', { className: 'flex flex-wrap gap-2' },
+                h('button', {
+                  type: 'button',
+                  onClick: () => fileInputRef.current?.click(),
+                  className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
+                }, pdfFile ? 'Replace PDF' : 'Upload PDF'),
+                pdfFile && h('button', {
+                  type: 'button',
+                  onClick: handleRemovePdf,
+                  className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
+                }, 'Remove')
+              )
             ),
+            h('input', {
+              ref: fileInputRef,
+              type: 'file',
+              accept: 'application/pdf',
+              onChange: handleFileInputChange,
+              className: 'hidden'
+            }),
             h('p', { className: 'mb-4 text-sm text-slate-500' },
-              'Drag in your form PDF for visual reference. The assistant can also use the content when answering.'
+              'Drag in your form PDF or use upload. The assistant can read it while answering.'
             ),
             h('div', {
               ref: dropAreaRef,
@@ -1063,6 +1405,11 @@ const FormFilingPage = ({ form, onBack, language }) => {
               !pdfFile && h('div', { className: 'flex h-full min-h-[340px] flex-col items-center justify-center gap-3' },
                 h('div', { className: 'h-12 w-12 rounded-2xl border border-slate-200 bg-slate-50 text-2xl leading-[48px]' }, 'PDF'),
                 h('p', { className: 'text-sm font-semibold text-slate-700' }, isDragging ? 'Drop your PDF here' : 'Drag and drop your PDF here'),
+                h('button', {
+                  type: 'button',
+                  onClick: () => fileInputRef.current?.click(),
+                  className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
+                }, 'Choose file'),
                 h('a', {
                   href: formSearchUrl,
                   target: '_blank',
@@ -1073,14 +1420,49 @@ const FormFilingPage = ({ form, onBack, language }) => {
                 pdfError && h('p', { className: 'text-sm text-red-600' }, pdfError),
                 !pdfJsLoaded && !pdfError && h('p', { className: 'text-xs uppercase tracking-[0.16em] text-slate-500' }, 'Loading PDF engine')
               ),
-              pdfFile && h('canvas', {
-                ref: canvasRef,
-                className: 'mx-auto block max-w-full rounded-xl border border-slate-200 bg-white shadow-sm'
-              })
+              pdfFile && h('div', null,
+                h('canvas', {
+                  ref: canvasRef,
+                  className: 'mx-auto block max-w-full rounded-xl border border-slate-200 bg-white shadow-sm'
+                }),
+                h('div', { className: 'mt-3 flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600' },
+                  h('span', null, `${pdfFile.name} • Page ${currentPdfPage}/${totalPdfPages}`),
+                  h('div', { className: 'flex items-center gap-2' },
+                    h('button', {
+                      type: 'button',
+                      onClick: () => setCurrentPdfPage((prev) => Math.max(1, prev - 1)),
+                      disabled: currentPdfPage <= 1,
+                      className: 'rounded-md border border-slate-200 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50'
+                    }, 'Prev'),
+                    h('button', {
+                      type: 'button',
+                      onClick: () => setCurrentPdfPage((prev) => Math.min(totalPdfPages, prev + 1)),
+                      disabled: currentPdfPage >= totalPdfPages,
+                      className: 'rounded-md border border-slate-200 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50'
+                    }, 'Next')
+                  )
+                )
+              )
             )
           ),
           h('div', { className: cn(APP_STYLES.section, 'flex h-full flex-col p-5 sm:p-6') },
-            h('h3', { className: 'text-lg font-semibold text-slate-900' }, 'Form Assistant'),
+            h('div', { className: 'flex flex-wrap items-start justify-between gap-2' },
+              h('h3', { className: 'text-lg font-semibold text-slate-900' }, 'Form Assistant'),
+              h('button', {
+                type: 'button',
+                onClick: handleCopyChat,
+                className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
+              }, 'Copy transcript')
+            ),
+            copiedStatus && h('p', { className: 'mt-2 text-xs text-tide-700' }, copiedStatus),
+            h('div', { className: 'mt-3 flex flex-wrap gap-2' },
+              quickPrompts.map((prompt) => h('button', {
+                key: prompt,
+                type: 'button',
+                onClick: () => setUserInput(prompt),
+                className: 'rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 transition hover:border-slate-300 hover:text-slate-900'
+              }, prompt))
+            ),
             h('div', { className: 'mt-4 flex-1 space-y-3 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-4', style: { minHeight: '360px', maxHeight: '460px' } },
               chatHistory.map((msg, index) => h('div', {
                 key: index,
@@ -1127,7 +1509,102 @@ const FormFilingPage = ({ form, onBack, language }) => {
   );
 };
 
-const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail, t }) => {
+const ResultsScreen = ({
+  response,
+  onReset,
+  onStartFiling,
+  onShowStepDetail,
+  onLoadHistoryPlan,
+  onDeleteHistoryPlan,
+  sourceFormData,
+  planHistory,
+  currentPlanId,
+  currentPlanCreatedAt,
+  t
+}) => {
+  const [stepChecklist, setStepChecklist] = useState({});
+  const [exportStatus, setExportStatus] = useState('');
+
+  const disclaimer = response?.disclaimer || t.disclaimerText;
+  const analysisSummary = response?.analysisSummary || '';
+  const requiredForms = Array.isArray(response?.requiredForms) ? response.requiredForms : [];
+  const nextSteps = Array.isArray(response?.nextSteps) ? response.nextSteps : [];
+  const requiredDocuments = Array.isArray(response?.requiredDocuments) && response.requiredDocuments.length > 0
+    ? response.requiredDocuments
+    : deriveDocumentChecklist(sourceFormData, requiredForms);
+  const riskAlerts = Array.isArray(response?.riskAlerts) ? response.riskAlerts : [];
+  const completedStepCount = nextSteps.filter((_, index) => Boolean(stepChecklist[index])).length;
+  const historyItems = Array.isArray(planHistory) ? planHistory.filter((item) => item && item.id) : [];
+
+  useEffect(() => {
+    if (!currentPlanId) {
+      setStepChecklist({});
+      return;
+    }
+    setStepChecklist(safeStorageGet(getChecklistStorageKey(currentPlanId), {}));
+  }, [currentPlanId]);
+
+  useEffect(() => {
+    if (!currentPlanId) {
+      return;
+    }
+    safeStorageSet(getChecklistStorageKey(currentPlanId), stepChecklist);
+  }, [currentPlanId, stepChecklist]);
+
+  const toggleStepComplete = (index) => {
+    setStepChecklist((prev) => ({ ...prev, [index]: !prev[index] }));
+  };
+
+  const handleCopyPlan = async () => {
+    const exportText = buildPlanSummaryText({
+      response,
+      sourceFormData,
+      generatedAt: currentPlanCreatedAt
+    });
+    try {
+      await navigator.clipboard.writeText(exportText);
+      setExportStatus('Plan copied');
+    } catch (error) {
+      console.warn('Failed to copy plan', error);
+      setExportStatus('Copy failed');
+    }
+    setTimeout(() => setExportStatus(''), 1800);
+  };
+
+  const handleDownloadPlan = () => {
+    const exportText = buildPlanSummaryText({
+      response,
+      sourceFormData,
+      generatedAt: currentPlanCreatedAt
+    });
+    const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `taxpal-plan-${currentPlanId || Date.now()}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadJson = () => {
+    const payload = {
+      generatedAt: currentPlanCreatedAt || new Date().toISOString(),
+      response,
+      sourceFormData
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `taxpal-plan-${currentPlanId || Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   if (!response) {
     return h('div', { className: 'mx-auto max-w-xl px-5 py-16 text-center sm:px-10' },
       h('div', { className: cn(APP_STYLES.panel, 'p-8') },
@@ -1141,16 +1618,29 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail, t }
     );
   }
 
-  const disclaimer = response.disclaimer || t.disclaimerText;
-  const analysisSummary = response.analysisSummary || '';
-  const requiredForms = Array.isArray(response.requiredForms) ? response.requiredForms : [];
-  const nextSteps = Array.isArray(response.nextSteps) ? response.nextSteps : [];
-
   return h('section', { className: 'relative px-5 pb-16 pt-8 sm:px-10' },
     h(PageBackdrop),
     h('div', { className: 'relative z-10 mx-auto max-w-6xl space-y-6' },
       h('div', { className: cn(APP_STYLES.panel, 'p-6 sm:p-8') },
         h('h2', { className: 'font-display text-3xl text-slate-900 sm:text-4xl' }, t.taxPlan),
+        h('div', { className: 'mt-4 flex flex-wrap gap-2' },
+          h('button', {
+            type: 'button',
+            onClick: handleCopyPlan,
+            className: 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
+          }, 'Copy summary'),
+          h('button', {
+            type: 'button',
+            onClick: handleDownloadPlan,
+            className: 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
+          }, 'Download TXT'),
+          h('button', {
+            type: 'button',
+            onClick: handleDownloadJson,
+            className: 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
+          }, 'Download JSON'),
+          exportStatus && h('span', { className: 'self-center text-xs text-tide-700' }, exportStatus)
+        ),
         h('div', { className: 'mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900' },
           h('strong', { className: 'font-semibold' }, `${t.quickReminder} `),
           disclaimer
@@ -1178,26 +1668,72 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail, t }
           )
         ),
         h('div', { className: APP_STYLES.section },
-          h('h3', { className: 'text-xl font-semibold text-slate-900' }, t.nextSteps),
+          h('div', { className: 'flex items-center justify-between gap-3' },
+            h('h3', { className: 'text-xl font-semibold text-slate-900' }, t.nextSteps),
+            h('span', { className: 'text-xs font-semibold uppercase tracking-[0.12em] text-slate-500' }, `${completedStepCount}/${nextSteps.length || 0} complete`)
+          ),
+          h('div', { className: 'mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200' },
+            h('div', {
+              className: 'h-full rounded-full bg-tide-600 transition-all duration-300',
+              style: { width: `${nextSteps.length ? Math.round((completedStepCount / nextSteps.length) * 100) : 0}%` }
+            })
+          ),
           h('div', { className: 'mt-4 space-y-3' },
             nextSteps.length > 0
-              ? nextSteps.map((step, index) => h('button', {
+              ? nextSteps.map((step, index) => h('div', {
                   key: `${step.stepTitle}-${index}`,
-                  onClick: () => onShowStepDetail(step),
                   className: cn(
-                    'w-full rounded-2xl border border-slate-200 bg-white p-4 text-left transition',
-                    'hover:border-tide-300 hover:bg-tide-50/40 focus:outline-none focus:ring-4 focus:ring-tide-100'
+                    'rounded-2xl border border-slate-200 bg-white p-4 transition',
+                    stepChecklist[index] ? 'border-tide-300 bg-tide-50/30' : 'hover:border-tide-300'
                   )
                 },
                   h('div', { className: 'flex items-start gap-3' },
-                    h('span', { className: 'inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-tide-700 text-xs font-semibold text-white' }, index + 1),
-                    h('span', { className: 'text-sm font-medium text-slate-800 sm:text-base' }, step.stepTitle)
+                    h('input', {
+                      type: 'checkbox',
+                      checked: Boolean(stepChecklist[index]),
+                      onChange: () => toggleStepComplete(index),
+                      className: 'mt-1 h-4 w-4 rounded accent-tide-700'
+                    }),
+                    h('div', { className: 'min-w-0 flex-1' },
+                      h('p', { className: 'text-sm font-medium text-slate-800 sm:text-base' }, `${index + 1}. ${step.stepTitle}`),
+                      h('div', { className: 'mt-2 flex gap-2' },
+                        h('button', {
+                          type: 'button',
+                          onClick: () => onShowStepDetail(step),
+                          className: 'rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:border-slate-300'
+                        }, 'View details')
+                      )
+                    )
                   )
                 ))
               : h('p', { className: 'rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' },
                   'No additional steps were returned. You can start a new plan for more context.'
                 )
           )
+        )
+      ),
+      h('div', { className: 'grid gap-6 lg:grid-cols-2' },
+        h('div', { className: APP_STYLES.section },
+          h('h3', { className: 'text-xl font-semibold text-slate-900' }, 'Document Checklist'),
+          h('ul', { className: 'mt-4 space-y-2' },
+            requiredDocuments.map((item, index) => h('li', {
+              key: `${item}-${index}`,
+              className: 'rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700'
+            }, item))
+          )
+        ),
+        h('div', { className: APP_STYLES.section },
+          h('h3', { className: 'text-xl font-semibold text-slate-900' }, 'Potential Watch-outs'),
+          riskAlerts.length > 0
+            ? h('ul', { className: 'mt-4 space-y-2' },
+                riskAlerts.map((item, index) => h('li', {
+                  key: `${item}-${index}`,
+                  className: 'rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900'
+                }, item))
+              )
+            : h('p', { className: 'mt-4 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600' },
+                'No risk alerts were returned for this plan.'
+              )
         )
       ),
       h('div', { className: APP_STYLES.section },
@@ -1220,6 +1756,42 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail, t }
             )
           : h('p', { className: 'mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' }, t.noForms)
       ),
+      h('div', { className: APP_STYLES.section },
+        h('div', { className: 'flex items-center justify-between gap-3' },
+          h('h3', { className: 'text-2xl font-semibold text-slate-900' }, 'Recent Plans'),
+          h('span', { className: 'text-xs uppercase tracking-[0.12em] text-slate-500' }, `${historyItems.length} saved`)
+        ),
+        historyItems.length > 0
+          ? h('div', { className: 'mt-4 space-y-3' },
+              historyItems.map((planItem) => h('div', {
+                key: planItem.id,
+                className: cn(
+                  'flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-3',
+                  planItem.id === currentPlanId ? 'border-tide-300 bg-tide-50/30' : 'border-slate-200 bg-white'
+                )
+              },
+                h('div', null,
+                  h('p', { className: 'text-sm font-semibold text-slate-900' }, `Plan ${planItem.id.slice(0, 8)}`),
+                  h('p', { className: 'text-xs text-slate-500' }, `${formatDateTime(planItem.createdAt)} • ${(planItem.response?.requiredForms || []).length} forms`)
+                ),
+                h('div', { className: 'flex gap-2' },
+                  h('button', {
+                    type: 'button',
+                    onClick: () => onLoadHistoryPlan(planItem.id),
+                    className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
+                  }, 'Open'),
+                  h('button', {
+                    type: 'button',
+                    onClick: () => onDeleteHistoryPlan(planItem.id),
+                    className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
+                  }, 'Delete')
+                )
+              ))
+            )
+          : h('p', { className: 'mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' },
+              'No saved plans yet. Generate your first plan and it will appear here.'
+            )
+      ),
       h('div', { className: 'text-center' },
         h('button', {
           onClick: onReset,
@@ -1231,15 +1803,30 @@ const ResultsScreen = ({ response, onReset, onStartFiling, onShowStepDetail, t }
 };
 
 function App() {
-  const [language, setLanguage] = useState(null);
+  const [language, setLanguage] = useState(() => safeStorageGet(STORAGE_KEYS.language, null));
   const [step, setStep] = useState('intro');
   const [formData, setFormData] = useState(null);
   const [aiResponse, setAiResponse] = useState(null);
   const [error, setError] = useState(null);
   const [currentForm, setCurrentForm] = useState(null);
   const [currentStepDetail, setCurrentStepDetail] = useState(null);
+  const [planHistory, setPlanHistory] = useState(() => {
+    const savedHistory = safeStorageGet(STORAGE_KEYS.planHistory, []);
+    return Array.isArray(savedHistory) ? savedHistory : [];
+  });
+  const [currentPlanId, setCurrentPlanId] = useState(null);
 
   const t = translations[language || 'en'];
+
+  useEffect(() => {
+    if (language) {
+      safeStorageSet(STORAGE_KEYS.language, language);
+    }
+  }, [language]);
+
+  useEffect(() => {
+    safeStorageSet(STORAGE_KEYS.planHistory, planHistory);
+  }, [planHistory]);
 
   if (!language) {
     return h(LanguageSelector, { onLanguageSelect: setLanguage });
@@ -1252,6 +1839,7 @@ function App() {
     setError(null);
     setCurrentForm(null);
     setCurrentStepDetail(null);
+    setCurrentPlanId(null);
   };
 
   const handleLoading = () => {
@@ -1293,8 +1881,21 @@ ${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].include
       const response = await fetchWithBackoff('/.netlify/functions/getTaxPlan', options);
       const responseText = await response.text();
       const parsedResponse = JSON.parse(responseText);
+      const newPlanId = createPlanId();
+      const createdAt = new Date().toISOString();
+      const planRecord = {
+        id: newPlanId,
+        createdAt,
+        language,
+        formData: data,
+        response: parsedResponse
+      };
 
       setAiResponse(parsedResponse);
+      setCurrentPlanId(newPlanId);
+      setPlanHistory((prev) => [planRecord, ...prev].slice(0, MAX_PLAN_HISTORY));
+      safeStorageRemove(STORAGE_KEYS.formDraft);
+      safeStorageRemove(`${STORAGE_KEYS.formDraft}.savedAt`);
       setStep('results');
     } catch (err) {
       console.error('Failed to parse AI response:', err);
@@ -1321,9 +1922,49 @@ ${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].include
     setCurrentStepDetail(stepDetail);
   };
 
+  const handleLoadHistoryPlan = (planId) => {
+    const selected = planHistory.find((item) => item.id === planId);
+    if (!selected) {
+      return;
+    }
+
+    if (selected.language && selected.language !== language) {
+      setLanguage(selected.language);
+    }
+    setFormData(selected.formData || null);
+    setAiResponse(selected.response || null);
+    setCurrentPlanId(selected.id);
+    setCurrentForm(null);
+    setCurrentStepDetail(null);
+    setError(null);
+    setStep('results');
+  };
+
+  const handleDeleteHistoryPlan = (planId) => {
+    const updated = planHistory.filter((item) => item.id !== planId);
+    setPlanHistory(updated);
+    safeStorageRemove(getChecklistStorageKey(planId));
+
+    if (currentPlanId === planId) {
+      const fallback = updated[0] || null;
+      if (fallback) {
+        setCurrentPlanId(fallback.id);
+        setFormData(fallback.formData || null);
+        setAiResponse(fallback.response || null);
+      } else {
+        setCurrentPlanId(null);
+        setFormData(null);
+        setAiResponse(null);
+        setStep('form');
+      }
+    }
+  };
+
   const handleCloseModal = () => {
     setCurrentStepDetail(null);
   };
+
+  const currentPlanMeta = planHistory.find((item) => item.id === currentPlanId) || null;
 
   const renderStep = () => {
     switch (step) {
@@ -1339,6 +1980,12 @@ ${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].include
           onReset: handleStart,
           onStartFiling: handleStartFiling,
           onShowStepDetail: handleShowStepDetail,
+          onLoadHistoryPlan: handleLoadHistoryPlan,
+          onDeleteHistoryPlan: handleDeleteHistoryPlan,
+          sourceFormData: formData,
+          planHistory,
+          currentPlanId,
+          currentPlanCreatedAt: currentPlanMeta?.createdAt,
           t
         });
       case 'filing':
@@ -1387,7 +2034,8 @@ ${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].include
           h('button', {
             onClick: handleStart,
             className: 'rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900'
-          }, t.newPlan)
+          }, t.newPlan),
+          h('span', { className: 'rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600' }, `${planHistory.length} saved`)
         )
       ),
       h('div', { className: 'mx-auto flex max-w-7xl gap-2 px-5 pb-4 sm:px-10' },

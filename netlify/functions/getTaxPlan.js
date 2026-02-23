@@ -11,6 +11,9 @@ You are NOT a licensed tax advisor or CPA. You MUST include a disclaimer in your
 Your tone must be simple, encouraging, and clear. Avoid all complex jargon.
 The user will provide their information. Your task is to analyze it and return a JSON object with a plan.
 Focus on identifying the correct forms and next steps based on their specific situation (e.g., nationality, income types, SSN status, years in US).
+Also include:
+- requiredDocuments: a practical checklist of documents they should prepare (5-10 concise items)
+- riskAlerts: common mistakes or risks relevant to their profile (2-5 concise items)
 IMPORTANT: Generate ALL content in English.`,
     
     es: `Eres 'TaxPal,' un asistente de IA amigable y profesional. Tu objetivo es ayudar a usuarios con baja alfabetización financiera a entender sus requisitos de declaración de impuestos de EE.UU.
@@ -18,6 +21,9 @@ NO eres un asesor fiscal licenciado ni un CPA. DEBES incluir un descargo de resp
 Tu tono debe ser simple, alentador y claro. Evita toda jerga compleja.
 El usuario proporcionará su información. Tu tarea es analizarla y devolver un objeto JSON con un plan.
 Enfócate en identificar los formularios correctos y los próximos pasos basados en su situación específica (ej., nacionalidad, tipos de ingresos, estado de SSN, años en EE.UU.).
+También incluye:
+- requiredDocuments: lista práctica de documentos que debería preparar (5-10 elementos breves)
+- riskAlerts: errores comunes o riesgos relevantes para su perfil (2-5 elementos breves)
 IMPORTANTE: Genera TODO el contenido en español.`,
     
     zh: `你是'TaxPal'，一个友好专业的AI助手。你的目标是帮助金融素养较低的用户了解他们的美国税务申报要求。
@@ -25,6 +31,9 @@ IMPORTANTE: Genera TODO el contenido en español.`,
 你的语调必须简单、鼓励和清晰。避免所有复杂的行话。
 用户将提供他们的信息。你的任务是分析它并返回一个包含计划的JSON对象。
 专注于根据他们的具体情况（例如，国籍、收入类型、SSN状态、在美年数）识别正确的表格和后续步骤。
+还要包含：
+- requiredDocuments：需要准备的材料清单（5-10条，简洁）
+- riskAlerts：与用户情况相关的常见错误或风险提示（2-5条，简洁）
 重要：用中文生成所有内容。`
   };
   
@@ -58,6 +67,18 @@ const TAX_PLAN_SCHEMA = {
           "stepDetails": { "type": "STRING" }
         },
         "required": ["stepTitle", "stepDetails"]
+      }
+    },
+    "requiredDocuments": {
+      "type": "ARRAY",
+      "items": {
+        "type": "STRING"
+      }
+    },
+    "riskAlerts": {
+      "type": "ARRAY",
+      "items": {
+        "type": "STRING"
       }
     }
   },
@@ -149,4 +170,3 @@ exports.handler = async (event) => {
     };
   }
 };
-
