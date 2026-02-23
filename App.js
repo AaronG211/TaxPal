@@ -224,8 +224,8 @@ const h = React.createElement;
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
 const APP_STYLES = {
-  panel: "rounded-[28px] border border-slate-200/80 bg-white/90 shadow-[0_30px_80px_-45px_rgba(15,23,42,0.45)] backdrop-blur-sm",
-  section: "rounded-3xl border border-slate-200/80 bg-white p-6 shadow-[0_18px_45px_-35px_rgba(15,23,42,0.5)] sm:p-8",
+  panel: "rounded-3xl border border-slate-200 bg-white shadow-[0_20px_45px_-30px_rgba(15,23,42,0.35)]",
+  section: "rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_14px_32px_-24px_rgba(15,23,42,0.28)] sm:p-8",
   control: "mt-2 w-full rounded-2xl border border-slate-300/90 bg-white px-4 py-3 text-[15px] text-slate-800 placeholder:text-slate-400 shadow-sm transition-all duration-200 focus:border-tide-600 focus:outline-none focus:ring-4 focus:ring-tide-100",
   label: "text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500"
 };
@@ -340,9 +340,9 @@ const getOptionSets = (t) => ({
 const getPromptValue = (value, dictionary) => dictionary[value] || value || 'Not specified';
 
 const PageBackdrop = () => h('div', { className: "pointer-events-none absolute inset-0 overflow-hidden" },
-  h('div', { className: "absolute -left-32 top-16 h-72 w-72 rounded-full bg-tide-200/55 blur-3xl animate-drift" }),
-  h('div', { className: "absolute -right-28 top-36 h-64 w-64 rounded-full bg-amber-200/45 blur-3xl animate-drift", style: { animationDelay: '2.6s' } }),
-  h('div', { className: "absolute bottom-[-7rem] left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-emerald-200/35 blur-3xl animate-drift", style: { animationDelay: '1.1s' } })
+  h('div', { className: "absolute -left-28 top-10 h-64 w-64 rounded-full bg-tide-100/70 blur-3xl animate-drift" }),
+  h('div', { className: "absolute -right-24 top-20 h-56 w-56 rounded-full bg-blue-100/65 blur-3xl animate-drift", style: { animationDelay: '2.4s' } }),
+  h('div', { className: "absolute bottom-[-5rem] left-1/2 h-60 w-60 -translate-x-1/2 rounded-full bg-slate-200/55 blur-3xl animate-drift", style: { animationDelay: '1.1s' } })
 );
 
 const DotBadge = ({ label }) => h('span', {
@@ -407,7 +407,7 @@ const LanguageSelector = ({ onLanguageSelect }) => {
     { code: 'zh', name: '中文', note: '简体', short: 'ZH' }
   ];
 
-  return h('div', { className: "relative min-h-screen overflow-hidden bg-gradient-to-br from-[#f4fbf9] via-[#fcfffe] to-[#ebf5f3] px-5 py-10 sm:px-10" },
+  return h('div', { className: "relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/55 to-slate-100 px-5 py-10 sm:px-10" },
     h(PageBackdrop),
     h('main', { className: "relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-4xl items-center" },
       h('section', { className: cn(APP_STYLES.panel, 'w-full p-8 sm:p-12') },
@@ -427,7 +427,7 @@ const LanguageSelector = ({ onLanguageSelect }) => {
             onClick: () => onLanguageSelect(item.code),
             className: cn(
               'group rounded-2xl border border-slate-200 bg-white p-4 text-left transition-all duration-300',
-              'hover:-translate-y-0.5 hover:border-tide-300 hover:shadow-[0_18px_35px_-30px_rgba(6,95,70,0.75)]',
+              'hover:-translate-y-0.5 hover:border-tide-300 hover:shadow-[0_16px_30px_-24px_rgba(37,70,160,0.45)]',
               'focus:outline-none focus:ring-4 focus:ring-tide-100'
             )
           },
@@ -455,7 +455,7 @@ const IntroScreen = ({ onStart, t }) => {
     h(PageBackdrop),
     h('div', { className: 'relative z-10 mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.35fr_1fr]' },
       h('div', { className: cn(APP_STYLES.panel, 'p-8 sm:p-10 lg:p-12') },
-        h('p', { className: 'text-[11px] font-semibold uppercase tracking-[0.22em] text-tide-700' }, 'Fresh tax experience'),
+        h('p', { className: 'text-[11px] font-semibold uppercase tracking-[0.22em] text-tide-700' }, 'Trusted tax guidance'),
         h('h1', { className: 'mt-4 font-display text-4xl leading-[1.1] text-slate-900 sm:text-5xl lg:text-6xl' },
           headingLines[0],
           h('br', null),
@@ -481,7 +481,7 @@ const IntroScreen = ({ onStart, t }) => {
         )
       ),
       h('div', { className: 'space-y-5' },
-        h('div', { className: cn(APP_STYLES.section, 'bg-gradient-to-br from-tide-900 to-tide-700 text-white') },
+        h('div', { className: cn(APP_STYLES.section, 'bg-gradient-to-br from-tide-900 to-tide-800 text-white') },
           h('p', { className: 'text-xs uppercase tracking-[0.18em] text-tide-100/90' }, 'How it works'),
           h('ol', { className: 'mt-4 space-y-4' },
             [
@@ -1363,8 +1363,8 @@ ${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].include
   ];
   const activeIndex = stepLabels.findIndex((item) => item.key === step);
 
-  return h('div', { className: 'relative min-h-screen overflow-hidden bg-[#f4fbf9] font-sans text-slate-900' },
-    h('div', { className: 'pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_10%_15%,rgba(45,212,191,0.16),transparent_38%),radial-gradient(circle_at_88%_10%,rgba(251,191,36,0.16),transparent_34%),linear-gradient(180deg,#f8fffd_0%,#f3f9f7_60%,#eef6f4_100%)]' }),
+  return h('div', { className: 'relative min-h-screen overflow-hidden bg-slate-50 font-sans text-slate-900' },
+    h('div', { className: 'pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(59,130,246,0.12),transparent_36%),radial-gradient(circle_at_86%_10%,rgba(96,165,250,0.1),transparent_32%),linear-gradient(180deg,#f8fafc_0%,#f3f7ff_52%,#eef3fb_100%)]' }),
     step !== 'intro' && h('header', { className: 'sticky top-0 z-30 border-b border-white/60 bg-white/72 backdrop-blur-xl' },
       h('nav', { className: 'mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-10' },
         h('div', { className: 'flex items-center gap-3' },

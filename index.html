@@ -9,28 +9,28 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
 
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Sora', 'ui-sans-serif', 'sans-serif'],
-              display: ['Fraunces', 'Georgia', 'serif']
+              sans: ['Manrope', 'Noto Sans SC', 'ui-sans-serif', 'sans-serif'],
+              display: ['Manrope', 'Noto Sans SC', 'ui-sans-serif', 'sans-serif']
             },
             colors: {
               tide: {
-                50: '#eefbf9',
-                100: '#d5f4ee',
-                200: '#afe8de',
-                300: '#7bd8ca',
-                400: '#44bfae',
-                500: '#249b8d',
-                600: '#147c72',
-                700: '#0f635d',
-                800: '#104f4b',
-                900: '#103f3e'
+                50: '#eef4ff',
+                100: '#dbe7ff',
+                200: '#b8ceff',
+                300: '#8eb0ff',
+                400: '#618df7',
+                500: '#3f6fe8',
+                600: '#2f57c6',
+                700: '#2648a0',
+                800: '#223d83',
+                900: '#223666'
               }
             },
             animation: {
@@ -40,7 +40,7 @@
             keyframes: {
               drift: {
                 '0%, 100%': { transform: 'translate3d(0, 0, 0)' },
-                '50%': { transform: 'translate3d(0, -14px, 0)' }
+                '50%': { transform: 'translate3d(0, -8px, 0)' }
               },
               pulseSoft: {
                 '0%, 100%': { opacity: '0.45' },
@@ -59,15 +59,15 @@
 
       body {
         margin: 0;
-        font-family: 'Sora', sans-serif;
+        font-family: 'Manrope', 'Noto Sans SC', sans-serif;
         color: #0f172a;
-        background: #f4fbf9;
+        background: #f8fafc;
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
       }
 
       ::selection {
-        background: rgba(20, 124, 114, 0.18);
+        background: rgba(47, 87, 198, 0.2);
       }
 
       ::-webkit-scrollbar {
@@ -75,16 +75,16 @@
       }
 
       ::-webkit-scrollbar-track {
-        background: #e8f2ef;
+        background: #edf2fb;
       }
 
       ::-webkit-scrollbar-thumb {
-        background: #89c9bf;
+        background: #9db5ef;
         border-radius: 999px;
       }
 
       ::-webkit-scrollbar-thumb:hover {
-        background: #4fa99c;
+        background: #668cd9;
       }
     </style>
   </head>
