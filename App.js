@@ -79,7 +79,60 @@ const translations = {
     // Common
     loading: "Loading...",
     analyzing: "Analyzing Your Situation...",
-    creatingPlan: "Our AI is creating your personalized tax plan"
+    creatingPlan: "Our AI is creating your personalized tax plan",
+    // New Localizations
+    smartIntake: "Smart Intake",
+    profileComplete: "Profile {percent}% complete",
+    draftSaved: "Draft saved {time}",
+    useSampleProfile: "Use sample profile",
+    clearSavedDraft: "Clear saved draft",
+    profileSection: "Profile",
+    statusSection: "Status",
+    incomeDeductionsSection: "Income & Deductions",
+    additionalTaxSituations: "Additional Tax Situations",
+    errorPleaseComplete: "Please complete: {missing}",
+    selectIncomeRange: "Select income range",
+    dontRemember: "Don't remember",
+    fiveOrMore: "5 or more",
+    backToTaxPlan: "Back to Tax Plan",
+    formPreview: "Form Preview",
+    replacePdf: "Replace PDF",
+    uploadPdf: "Upload PDF",
+    remove: "Remove",
+    dragPdfDesc: "Drag in your form PDF or use upload. The assistant can read it while answering.",
+    dropPdfHere: "Drop your PDF here",
+    dragAndDropPdf: "Drag and drop your PDF here",
+    chooseFile: "Choose file",
+    findFormOnIRS: "Find {formId} on IRS.gov",
+    loadingPdfEngine: "Loading PDF engine",
+    prev: "Prev",
+    next: "Next",
+    formAssistant: "Form Assistant",
+    copyTranscript: "Copy transcript",
+    send: "Send",
+    askAbout: "Ask about {formId}...",
+    copySummary: "Copy summary",
+    downloadTxt: "Download TXT",
+    downloadJson: "Download JSON",
+    planCopied: "Plan copied",
+    copyFailed: "Copy failed",
+    documentChecklist: "Document Checklist",
+    potentialWatchOuts: "Potential Watch-outs",
+    noRiskAlerts: "No risk alerts were returned for this plan.",
+    recentPlans: "Recent Plans",
+    savedCount: "{count} saved",
+    open: "Open",
+    deletePlan: "Delete",
+    noSavedPlans: "No saved plans yet. Generate your first plan and it will appear here.",
+    oopsSomethingWentWrong: "Oops! Something went wrong.",
+    couldNotGeneratePlan: "We couldn't generate your tax plan.",
+    tryAgain: "Try Again",
+    viewDetails: "View details",
+    taxPlanner: "Tax planner",
+    buildingRecommendations: "Building personalized recommendations",
+    close: "Close",
+    gotIt: "Got it",
+    errorTitle: "Error: "
   },
   es: {
     // Intro Screen
@@ -153,7 +206,60 @@ const translations = {
     // Common
     loading: "Cargando...",
     analyzing: "Analizando Tu Situación...",
-    creatingPlan: "Nuestra IA está creando tu plan fiscal personalizado"
+    creatingPlan: "Nuestra IA está creando tu plan fiscal personalizado",
+    // New Localizations
+    smartIntake: "Admisión Inteligente",
+    profileComplete: "Perfil {percent}% completo",
+    draftSaved: "Borrador guardado {time}",
+    useSampleProfile: "Usar perfil de ejemplo",
+    clearSavedDraft: "Borrar borrador guardado",
+    profileSection: "Perfil",
+    statusSection: "Estado",
+    incomeDeductionsSection: "Ingresos y Deducciones",
+    additionalTaxSituations: "Situaciones Fiscales Adicionales",
+    errorPleaseComplete: "Por favor complete: {missing}",
+    selectIncomeRange: "Seleccione el rango de ingresos",
+    dontRemember: "No lo recuerdo",
+    fiveOrMore: "5 o más",
+    backToTaxPlan: "Volver al Plan Fiscal",
+    formPreview: "Vista Previa del Formulario",
+    replacePdf: "Reemplazar PDF",
+    uploadPdf: "Subir PDF",
+    remove: "Eliminar",
+    dragPdfDesc: "Arrastre el PDF de su formulario o use subir. El asistente puede leerlo mientras responde.",
+    dropPdfHere: "Suelta tu PDF aquí",
+    dragAndDropPdf: "Arrastre y suelte su PDF aquí",
+    chooseFile: "Elegir archivo",
+    findFormOnIRS: "Encuentre {formId} en IRS.gov",
+    loadingPdfEngine: "Cargando motor PDF",
+    prev: "Anterior",
+    next: "Siguiente",
+    formAssistant: "Asistente de Formulario",
+    copyTranscript: "Copiar transcripción",
+    send: "Enviar",
+    askAbout: "Preguntar sobre {formId}...",
+    copySummary: "Copiar resumen",
+    downloadTxt: "Descargar TXT",
+    downloadJson: "Descargar JSON",
+    planCopied: "Plan copiado",
+    copyFailed: "Error al copiar",
+    documentChecklist: "Lista de Verificación de Documentos",
+    potentialWatchOuts: "Posibles Advertencias",
+    noRiskAlerts: "No se encontraron advertencias de riesgo para este plan.",
+    recentPlans: "Planes Recientes",
+    savedCount: "{count} guardados",
+    open: "Abrir",
+    deletePlan: "Eliminar",
+    noSavedPlans: "Aún no hay planes guardados. Genere su primer plan y aparecerá aquí.",
+    oopsSomethingWentWrong: "¡Ups! Algo salió mal.",
+    couldNotGeneratePlan: "No pudimos generar su plan fiscal.",
+    tryAgain: "Intentar de Nuevo",
+    viewDetails: "Ver detalles",
+    taxPlanner: "Planificador de impuestos",
+    buildingRecommendations: "Construyendo recomendaciones personalizadas",
+    close: "Cerrar",
+    gotIt: "Entendido",
+    errorTitle: "Error: "
   },
   zh: {
     // Intro Screen
@@ -227,7 +333,60 @@ const translations = {
     // Common
     loading: "加载中...",
     analyzing: "分析您的情况...",
-    creatingPlan: "我们的AI正在创建您的个性化税务计划"
+    creatingPlan: "我们的AI正在创建您的个性化税务计划",
+    // New Localizations
+    smartIntake: "智能信息采集",
+    profileComplete: "个人资料完成 {percent}%",
+    draftSaved: "草稿已保存 {time}",
+    useSampleProfile: "使用示例资料",
+    clearSavedDraft: "清除已保存的草稿",
+    profileSection: "个人资料",
+    statusSection: "状态",
+    incomeDeductionsSection: "收入和扣除额",
+    additionalTaxSituations: "其他税务情况",
+    errorPleaseComplete: "请填写：{missing}",
+    selectIncomeRange: "选择收入范围",
+    dontRemember: "不记得了",
+    fiveOrMore: "5个或更多",
+    backToTaxPlan: "返回税务计划",
+    formPreview: "表格预览",
+    replacePdf: "替换PDF",
+    uploadPdf: "上传PDF",
+    remove: "移除",
+    dragPdfDesc: "将您的表格PDF拖入此处或点击上传。助手在回答时能读取该文件。",
+    dropPdfHere: "将PDF拖放到此处",
+    dragAndDropPdf: "将PDF拖放到此处",
+    chooseFile: "选择文件",
+    findFormOnIRS: "在IRS.gov寻找 {formId}",
+    loadingPdfEngine: "加载PDF引擎中",
+    prev: "上一步",
+    next: "下一步",
+    formAssistant: "表格助手",
+    copyTranscript: "复制聊天记录",
+    send: "发送",
+    askAbout: "询问关于 {formId}...",
+    copySummary: "复制摘要",
+    downloadTxt: "下载 TXT",
+    downloadJson: "下载 JSON",
+    planCopied: "计划已复制",
+    copyFailed: "复制失败",
+    documentChecklist: "文件清单",
+    potentialWatchOuts: "潜在注意事项",
+    noRiskAlerts: "未发现任何税务风险警告。",
+    recentPlans: "最近的计划",
+    savedCount: "{count} 已保存",
+    open: "打开",
+    deletePlan: "删除",
+    noSavedPlans: "尚未保存任何计划。生成您的首个计划后即可在此查看。",
+    oopsSomethingWentWrong: "哎呀！出了点问题。",
+    couldNotGeneratePlan: "我们无法生成您的税务计划。",
+    tryAgain: "重试",
+    viewDetails: "查看详情",
+    taxPlanner: "税务规划师",
+    buildingRecommendations: "生成个性化建议中",
+    close: "关闭",
+    gotIt: "明白了",
+    errorTitle: "错误： "
   }
 };
 
@@ -368,7 +527,7 @@ const getOptionSets = (t) => ({
   itemizedPreviousYear: [
     { value: 'yes', label: t.yes },
     { value: 'no', label: t.no },
-    { value: 'notSure', label: "Don't remember" }
+    { value: 'notSure', label: t.dontRemember }
   ],
   incomeSources: [
     { value: 'w2Salary', label: t.w2Salary },
@@ -1038,15 +1197,15 @@ const IntakeForm = ({ onSubmit, onLoading, t }) => {
       h('div', { className: cn(APP_STYLES.panel, 'p-6 sm:p-8') },
         h('div', { className: 'flex flex-wrap items-start justify-between gap-4' },
           h('div', null,
-            h('p', { className: 'text-[11px] font-semibold uppercase tracking-[0.18em] text-tide-700' }, 'Smart Intake'),
+            h('p', { className: 'text-[11px] font-semibold uppercase tracking-[0.18em] text-tide-700' }, t.smartIntake),
             h('h2', { className: 'mt-2 font-display text-3xl text-slate-900 sm:text-4xl' }, t.tellUsAbout),
             h('p', { className: 'mt-3 max-w-3xl text-base text-slate-600' }, t.formDescription)
           ),
           h('div', { className: 'text-right' },
             h('span', { className: 'rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-600' },
-              `Profile ${completionPercent}% complete`
+              t.profileComplete.replace('{percent}', completionPercent)
             ),
-            draftSavedAt && h('p', { className: 'mt-2 text-xs text-slate-500' }, `Draft saved ${formatDateTime(draftSavedAt)}`)
+            draftSavedAt && h('p', { className: 'mt-2 text-xs text-slate-500' }, t.draftSaved.replace('{time}', formatDateTime(draftSavedAt)))
           )
         ),
         h('div', { className: 'mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-200' },
@@ -1057,18 +1216,18 @@ const IntakeForm = ({ onSubmit, onLoading, t }) => {
             type: 'button',
             onClick: handleUseSample,
             className: 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900'
-          }, 'Use sample profile'),
+          }, t.useSampleProfile),
           h('button', {
             type: 'button',
             onClick: handleClearDraft,
             className: 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900'
-          }, 'Clear saved draft')
+          }, t.clearSavedDraft)
         )
       ),
       h('form', { onSubmit: handleSubmit, className: 'mt-6 space-y-5' },
         validationError && h('div', { className: 'rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700' }, validationError),
         h('section', { className: APP_STYLES.section },
-          h('p', { className: 'text-sm font-semibold text-slate-900' }, 'Profile'),
+          h('p', { className: 'text-sm font-semibold text-slate-900' }, t.profileSection),
           h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
             h(FormInput, {
               label: t.nationality,
@@ -1103,7 +1262,7 @@ const IntakeForm = ({ onSubmit, onLoading, t }) => {
           )
         ),
         h('section', { className: APP_STYLES.section },
-          h('p', { className: 'text-sm font-semibold text-slate-900' }, 'Status'),
+          h('p', { className: 'text-sm font-semibold text-slate-900' }, t.statusSection),
           h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
             h(FormSelect, {
               label: t.jobStatus,
@@ -1139,7 +1298,7 @@ const IntakeForm = ({ onSubmit, onLoading, t }) => {
           )
         ),
         h('section', { className: APP_STYLES.section },
-          h('p', { className: 'text-sm font-semibold text-slate-900' }, 'Income & Deductions'),
+          h('p', { className: 'text-sm font-semibold text-slate-900' }, t.incomeDeductionsSection),
           h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
             h(FormSelect, {
               label: t.incomeRange,
@@ -1148,7 +1307,7 @@ const IntakeForm = ({ onSubmit, onLoading, t }) => {
               onChange: handleChange,
               required: true
             },
-              h('option', { value: '' }, 'Select income range'),
+              h('option', { value: '' }, t.selectIncomeRange),
               INCOME_RANGES.map((range) => h('option', { key: range, value: range }, range))
             ),
             h(FormSelect, {
@@ -1183,7 +1342,7 @@ const IntakeForm = ({ onSubmit, onLoading, t }) => {
               value: formData.dependents,
               onChange: handleChange
             },
-              ['0', '1', '2', '3', '4', '5+'].map((count) => h('option', { key: count, value: count }, count === '5+' ? '5 or more' : count))
+              ['0', '1', '2', '3', '4', '5+'].map((count) => h('option', { key: count, value: count }, count === '5+' ? t.fiveOrMore : count))
             ),
             h(FormRadio, {
               label: t.itemizedPreviousYear,
@@ -1195,7 +1354,7 @@ const IntakeForm = ({ onSubmit, onLoading, t }) => {
           ),
         ),
         h('section', { className: APP_STYLES.section },
-          h('p', { className: 'text-sm font-semibold text-slate-900' }, 'Additional Tax Situations'),
+          h('p', { className: 'text-sm font-semibold text-slate-900' }, t.additionalTaxSituations),
           h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
             h(FormRadio, {
               label: t.hasCrypto,
@@ -1271,7 +1430,7 @@ const LoadingScreen = ({ t }) => h('section', { className: 'relative min-h-[70vh
         h('div', { className: 'h-2 w-full overflow-hidden rounded-full bg-slate-100' },
           h('div', { className: 'h-full w-2/3 rounded-full bg-tide-500 animate-pulse-soft' })
         ),
-        h('p', { className: 'text-xs uppercase tracking-[0.16em] text-slate-500' }, 'Building personalized recommendations')
+        h('p', { className: 'text-xs uppercase tracking-[0.16em] text-slate-500' }, t.buildingRecommendations)
       )
     )
   )
@@ -1310,14 +1469,14 @@ const StepDetailModal = ({ step, onClose }) => h('div', {
       h('button', {
         onClick: onClose,
         className: 'rounded-lg border border-slate-200 px-3 py-1 text-sm text-slate-500 transition hover:border-slate-300 hover:text-slate-700'
-      }, 'Close')
+      }, t.close)
     ),
     h('main', { className: 'max-h-[58vh] overflow-y-auto px-6 py-5' }, h(LinkedText, { text: step.stepDetails })),
     h('footer', { className: 'border-t border-slate-200 px-6 py-4 text-right' },
       h('button', {
         onClick: onClose,
         className: 'rounded-xl bg-tide-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-tide-800'
-      }, 'Got it')
+      }, t.gotIt)
     )
   )
 );
@@ -1369,7 +1528,7 @@ const FormFilingPage = ({ form, onBack, language }) => {
       {
         role: 'model',
         parts: [{
-          text: `Hi! I'm here to help you with Form ${form.formId}.\n\nAsk anything about this form, like "How do I fill out line 10?"`
+          text: t.askAbout.replace('{formId}', form.formId)
         }]
       }
     ]);
@@ -1421,14 +1580,14 @@ const FormFilingPage = ({ form, onBack, language }) => {
         await renderPdfPage(pdf, 1);
       } catch (error) {
         console.error('Error rendering PDF:', error);
-        setPdfError('Could not display this PDF. It may be corrupted.');
+        setPdfError(t.oopsSomethingWentWrong);
         setPdfFile(null);
         pdfDocumentRef.current = null;
       }
     };
 
     fileReader.onerror = () => {
-      setPdfError('Failed to read the file.');
+      setPdfError(t.oopsSomethingWentWrong);
     };
 
     fileReader.readAsArrayBuffer(pdfFile);
@@ -1548,10 +1707,10 @@ const FormFilingPage = ({ form, onBack, language }) => {
       .join('\n\n');
     try {
       await navigator.clipboard.writeText(transcript);
-      setCopiedStatus('Transcript copied');
+      setCopiedStatus(t.planCopied);
     } catch (error) {
       console.warn('Failed to copy transcript', error);
-      setCopiedStatus('Copy failed');
+      setCopiedStatus(t.copyFailed);
     }
     setTimeout(() => setCopiedStatus(''), 1800);
   };
@@ -1572,7 +1731,7 @@ const FormFilingPage = ({ form, onBack, language }) => {
         className: 'mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 transition hover:border-slate-300 hover:text-slate-900'
       },
         h('span', null, '←'),
-        'Back to Tax Plan'
+        t.backToTaxPlan
       ),
       h('div', { className: cn(APP_STYLES.panel, 'p-6 sm:p-8') },
         h('h2', { className: 'font-display text-3xl text-slate-900 sm:text-4xl' }, `Filing: ${form.formId}`),
@@ -1580,18 +1739,18 @@ const FormFilingPage = ({ form, onBack, language }) => {
         h('div', { className: 'mt-6 grid gap-6 lg:grid-cols-2' },
           h('div', { className: cn(APP_STYLES.section, 'p-5 sm:p-6') },
             h('div', { className: 'mb-3 flex flex-wrap items-center justify-between gap-2' },
-              h('h3', { className: 'text-lg font-semibold text-slate-900' }, 'Form Preview'),
+              h('h3', { className: 'text-lg font-semibold text-slate-900' }, t.formPreview),
               h('div', { className: 'flex flex-wrap gap-2' },
                 h('button', {
                   type: 'button',
                   onClick: () => fileInputRef.current?.click(),
                   className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
-                }, pdfFile ? 'Replace PDF' : 'Upload PDF'),
+                }, pdfFile ? t.replacePdf : t.uploadPdf),
                 pdfFile && h('button', {
                   type: 'button',
                   onClick: handleRemovePdf,
                   className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
-                }, 'Remove')
+                }, t.remove)
               )
             ),
             h('input', {
@@ -1602,7 +1761,7 @@ const FormFilingPage = ({ form, onBack, language }) => {
               className: 'hidden'
             }),
             h('p', { className: 'mb-4 text-sm text-slate-500' },
-              'Drag in your form PDF or use upload. The assistant can read it while answering.'
+              t.dragPdfDesc
             ),
             h('div', {
               ref: dropAreaRef,
@@ -1618,21 +1777,21 @@ const FormFilingPage = ({ form, onBack, language }) => {
             },
               !pdfFile && h('div', { className: 'flex h-full min-h-[340px] flex-col items-center justify-center gap-3' },
                 h('div', { className: 'h-12 w-12 rounded-2xl border border-slate-200 bg-slate-50 text-2xl leading-[48px]' }, 'PDF'),
-                h('p', { className: 'text-sm font-semibold text-slate-700' }, isDragging ? 'Drop your PDF here' : 'Drag and drop your PDF here'),
+                h('p', { className: 'text-sm font-semibold text-slate-700' }, isDragging ? t.dropPdfHere : t.dragAndDropPdf),
                 h('button', {
                   type: 'button',
                   onClick: () => fileInputRef.current?.click(),
                   className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
-                }, 'Choose file'),
+                }, t.chooseFile),
                 h('a', {
                   href: formSearchUrl,
                   target: '_blank',
                   rel: 'noopener noreferrer',
                   className: 'text-sm text-tide-700 underline decoration-tide-300 underline-offset-4 hover:text-tide-800',
                   onClick: (e) => e.stopPropagation()
-                }, `Find ${form.formId} on IRS.gov`),
+                }, t.findFormOnIRS.replace('{formId}', form.formId)),
                 pdfError && h('p', { className: 'text-sm text-red-600' }, pdfError),
-                !pdfJsLoaded && !pdfError && h('p', { className: 'text-xs uppercase tracking-[0.16em] text-slate-500' }, 'Loading PDF engine')
+                !pdfJsLoaded && !pdfError && h('p', { className: 'text-xs uppercase tracking-[0.16em] text-slate-500' }, t.loadingPdfEngine)
               ),
               pdfFile && h('div', null,
                 h('canvas', {
@@ -1647,13 +1806,13 @@ const FormFilingPage = ({ form, onBack, language }) => {
                       onClick: () => setCurrentPdfPage((prev) => Math.max(1, prev - 1)),
                       disabled: currentPdfPage <= 1,
                       className: 'rounded-md border border-slate-200 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50'
-                    }, 'Prev'),
+                    }, t.prev),
                     h('button', {
                       type: 'button',
                       onClick: () => setCurrentPdfPage((prev) => Math.min(totalPdfPages, prev + 1)),
                       disabled: currentPdfPage >= totalPdfPages,
                       className: 'rounded-md border border-slate-200 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50'
-                    }, 'Next')
+                    }, t.next)
                   )
                 )
               )
@@ -1661,12 +1820,12 @@ const FormFilingPage = ({ form, onBack, language }) => {
           ),
           h('div', { className: cn(APP_STYLES.section, 'flex h-full flex-col p-5 sm:p-6') },
             h('div', { className: 'flex flex-wrap items-start justify-between gap-2' },
-              h('h3', { className: 'text-lg font-semibold text-slate-900' }, 'Form Assistant'),
+              h('h3', { className: 'text-lg font-semibold text-slate-900' }, t.formAssistant),
               h('button', {
                 type: 'button',
                 onClick: handleCopyChat,
                 className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
-              }, 'Copy transcript')
+              }, t.copyTranscript)
             ),
             copiedStatus && h('p', { className: 'mt-2 text-xs text-tide-700' }, copiedStatus),
             h('div', { className: 'mt-3 flex flex-wrap gap-2' },
@@ -1707,14 +1866,14 @@ const FormFilingPage = ({ form, onBack, language }) => {
                 value: userInput,
                 onChange: (e) => setUserInput(e.target.value),
                 disabled: chatLoading,
-                placeholder: `Ask about ${form.formId}...`,
+                placeholder: t.askAbout.replace('{formId}', form.formId),
                 className: 'flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-tide-600 focus:outline-none focus:ring-4 focus:ring-tide-100'
               }),
               h('button', {
                 type: 'submit',
                 disabled: chatLoading,
                 className: 'rounded-xl bg-tide-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-tide-800 disabled:cursor-not-allowed disabled:bg-slate-400'
-              }, 'Send')
+              }, t.send)
             )
           )
         )
@@ -1778,10 +1937,10 @@ const ResultsScreen = ({
     });
     try {
       await navigator.clipboard.writeText(exportText);
-      setExportStatus('Plan copied');
+      setExportStatus(t.planCopied);
     } catch (error) {
       console.warn('Failed to copy plan', error);
-      setExportStatus('Copy failed');
+      setExportStatus(t.copyFailed);
     }
     setTimeout(() => setExportStatus(''), 1800);
   };
@@ -1823,12 +1982,12 @@ const ResultsScreen = ({
   if (!response) {
     return h('div', { className: 'mx-auto max-w-xl px-5 py-16 text-center sm:px-10' },
       h('div', { className: cn(APP_STYLES.panel, 'p-8') },
-        h('h2', { className: 'font-display text-3xl text-slate-900' }, 'Oops! Something went wrong.'),
-        h('p', { className: 'mt-2 text-slate-600' }, "We couldn't generate your tax plan."),
+        h('h2', { className: 'font-display text-3xl text-slate-900' }, t.oopsSomethingWentWrong),
+        h('p', { className: 'mt-2 text-slate-600' }, t.couldNotGeneratePlan),
         h('button', {
           onClick: onReset,
           className: 'mt-6 rounded-xl bg-tide-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-tide-800'
-        }, 'Try Again')
+        }, t.tryAgain)
       )
     );
   }
@@ -1844,17 +2003,17 @@ const ResultsScreen = ({
             type: 'button',
             onClick: handleCopyPlan,
             className: 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
-          }, 'Copy summary'),
+          }, t.copySummary),
           h('button', {
             type: 'button',
             onClick: handleDownloadPlan,
             className: 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
-          }, 'Download TXT'),
+          }, t.downloadTxt),
           h('button', {
             type: 'button',
             onClick: handleDownloadJson,
             className: 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
-          }, 'Download JSON'),
+          }, t.downloadJson),
           exportStatus && h('span', { className: 'self-center text-xs text-tide-700' }, exportStatus)
         ),
         h('div', { className: 'mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900' },
@@ -1917,7 +2076,7 @@ const ResultsScreen = ({
                         type: 'button',
                         onClick: () => onShowStepDetail(step),
                         className: 'rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:border-slate-300'
-                      }, 'View details')
+                      }, t.viewDetails)
                     )
                   )
                 )
@@ -1930,7 +2089,7 @@ const ResultsScreen = ({
       ),
       h('div', { className: 'grid gap-6 lg:grid-cols-2' },
         h('div', { className: APP_STYLES.section },
-          h('h3', { className: 'text-xl font-semibold text-slate-900' }, 'Document Checklist'),
+          h('h3', { className: 'text-xl font-semibold text-slate-900' }, t.documentChecklist),
           h('ul', { className: 'mt-4 space-y-2' },
             requiredDocuments.map((item, index) => h('li', {
               key: `${item}-${index}`,
@@ -1939,7 +2098,7 @@ const ResultsScreen = ({
           )
         ),
         h('div', { className: APP_STYLES.section },
-          h('h3', { className: 'text-xl font-semibold text-slate-900' }, 'Potential Watch-outs'),
+          h('h3', { className: 'text-xl font-semibold text-slate-900' }, t.potentialWatchOuts),
           riskAlerts.length > 0
             ? h('ul', { className: 'mt-4 space-y-2' },
               riskAlerts.map((item, index) => h('li', {
@@ -1948,7 +2107,7 @@ const ResultsScreen = ({
               }, item))
             )
             : h('p', { className: 'mt-4 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600' },
-              'No risk alerts were returned for this plan.'
+              t.noRiskAlerts
             )
         )
       ),
@@ -1974,8 +2133,8 @@ const ResultsScreen = ({
       ),
       h('div', { className: APP_STYLES.section },
         h('div', { className: 'flex items-center justify-between gap-3' },
-          h('h3', { className: 'text-2xl font-semibold text-slate-900' }, 'Recent Plans'),
-          h('span', { className: 'text-xs uppercase tracking-[0.12em] text-slate-500' }, `${historyItems.length} saved`)
+          h('h3', { className: 'text-2xl font-semibold text-slate-900' }, t.recentPlans),
+          h('span', { className: 'text-xs uppercase tracking-[0.12em] text-slate-500' }, t.savedCount.replace('{count}', historyItems.length))
         ),
         historyItems.length > 0
           ? h('div', { className: 'mt-4 space-y-3' },
@@ -1995,17 +2154,17 @@ const ResultsScreen = ({
                   type: 'button',
                   onClick: () => onLoadHistoryPlan(planItem.id),
                   className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
-                }, 'Open'),
+                }, t.open),
                 h('button', {
                   type: 'button',
                   onClick: () => onDeleteHistoryPlan(planItem.id),
                   className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
-                }, 'Delete')
+                }, t.deletePlan)
               )
             ))
           )
           : h('p', { className: 'mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' },
-            'No saved plans yet. Generate your first plan and it will appear here.'
+            t.noSavedPlans
           )
       ),
       h('div', { className: 'text-center' },
@@ -2265,7 +2424,7 @@ ${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].include
           h('div', { className: 'grid h-10 w-10 place-items-center rounded-xl bg-tide-700 text-sm font-semibold text-white shadow-sm' }, 'TP'),
           h('div', null,
             h('p', { className: 'text-lg font-semibold text-slate-900' }, 'TaxPal'),
-            h('p', { className: 'text-xs uppercase tracking-[0.14em] text-slate-500' }, 'Tax planner')
+            h('p', { className: 'text-xs uppercase tracking-[0.14em] text-slate-500' }, t.taxPlanner)
           )
         ),
         h('div', { className: 'flex flex-wrap items-center gap-2 sm:gap-3' },
@@ -2282,7 +2441,7 @@ ${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].include
             onClick: handleStart,
             className: 'rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900'
           }, t.newPlan),
-          h('span', { className: 'rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600' }, `${planHistory.length} saved`)
+          h('span', { className: 'rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600' }, t.savedCount.replace('{count}', planHistory.length))
         )
       ),
       h('div', { className: 'mx-auto flex max-w-7xl gap-2 px-5 pb-4 sm:px-10' },
@@ -2301,7 +2460,7 @@ ${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].include
       renderStep(),
       error && h('div', { className: 'mx-auto max-w-3xl px-5 pb-8 sm:px-10' },
         h('div', { className: 'rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700' },
-          h('strong', { className: 'font-semibold' }, 'Error: '),
+          h('strong', { className: 'font-semibold' }, t.errorTitle),
           error
         )
       )
