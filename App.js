@@ -49,6 +49,10 @@ const translations = {
     dependents: "How many dependents do you have?",
     hadJobChange: "Did you change jobs last year?",
     itemizedPreviousYear: "Did you itemize deductions last year?",
+    hasCrypto: "Did you transact in Digital Assets or Cryptocurrency?",
+    hasRetirement: "Did you contribute to a Retirement Account (IRA, 401(k), etc.)?",
+    hasMarketplaceHealth: "Did you have Health Insurance through the ACA Marketplace?",
+    hasStudentLoans: "Did you pay Student Loan Interest or Tuition expenses?",
     incomeSources: "What are your income sources? (Select all that apply)",
     w2Salary: "W-2 Salary (from an employer)",
     selfEmployment: "Self-Employment / Freelance (1099-NEC/MISC)",
@@ -119,6 +123,10 @@ const translations = {
     dependents: "¿Cuántos dependientes tienes?",
     hadJobChange: "¿Cambiaste de trabajo el año pasado?",
     itemizedPreviousYear: "¿Detallaste deducciones el año pasado?",
+    hasCrypto: "¿Realizó transacciones con activos digitales o criptomonedas?",
+    hasRetirement: "¿Contribuyó a una cuenta de jubilación (IRA, 401(k), etc.)?",
+    hasMarketplaceHealth: "¿Tuvo seguro médico a través del Mercado de la ACA?",
+    hasStudentLoans: "¿Pagó intereses de préstamos estudiantiles o gastos de matrícula?",
     incomeSources: "¿Cuáles son tus fuentes de ingresos? (Selecciona todas las que apliquen)",
     w2Salary: "Salario W-2 (de un empleador)",
     selfEmployment: "Trabajo Independiente / Freelance (1099-NEC/MISC)",
@@ -189,6 +197,10 @@ const translations = {
     dependents: "您有多少个受抚养人？",
     hadJobChange: "您去年换工作了吗？",
     itemizedPreviousYear: "您去年是否逐项扣除？",
+    hasCrypto: "您是否交易过数字资产或加密货币？",
+    hasRetirement: "您是否向退休账户（IRA、401(k)等）缴纳过款项？",
+    hasMarketplaceHealth: "您是否通过ACA（奥巴马医保）市场购买了健康保险？",
+    hasStudentLoans: "您是否支付过学生贷款利息或学费？",
     incomeSources: "您的收入来源是什么？（选择所有适用的）",
     w2Salary: "W-2工资（来自雇主）",
     selfEmployment: "自雇/自由职业（1099-NEC/MISC）",
@@ -244,6 +256,10 @@ const DEFAULT_FORM_DATA = {
   dependents: '0',
   hadJobChange: 'no',
   itemizedPreviousYear: 'no',
+  hasCrypto: 'no',
+  hasRetirement: 'no',
+  hasMarketplaceHealth: 'no',
+  hasStudentLoans: 'no',
   incomeSources: [],
   specifics: ''
 };
@@ -1177,6 +1193,41 @@ const IntakeForm = ({ onSubmit, onLoading, t }) => {
               options: optionSets.itemizedPreviousYear
             })
           ),
+        ),
+        h('section', { className: APP_STYLES.section },
+          h('p', { className: 'text-sm font-semibold text-slate-900' }, 'Additional Tax Situations'),
+          h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
+            h(FormRadio, {
+              label: t.hasCrypto,
+              name: 'hasCrypto',
+              value: formData.hasCrypto,
+              onChange: handleChange,
+              options: optionSets.yesNo
+            }),
+            h(FormRadio, {
+              label: t.hasRetirement,
+              name: 'hasRetirement',
+              value: formData.hasRetirement,
+              onChange: handleChange,
+              options: optionSets.yesNo
+            })
+          ),
+          h('div', { className: 'mt-4 grid gap-4 md:grid-cols-2' },
+            h(FormRadio, {
+              label: t.hasMarketplaceHealth,
+              name: 'hasMarketplaceHealth',
+              value: formData.hasMarketplaceHealth,
+              onChange: handleChange,
+              options: optionSets.yesNo
+            }),
+            h(FormRadio, {
+              label: t.hasStudentLoans,
+              name: 'hasStudentLoans',
+              value: formData.hasStudentLoans,
+              onChange: handleChange,
+              options: optionSets.yesNo
+            })
+          ),
           h('div', { className: 'mt-4' },
             h(FormCheckboxGroup, {
               label: t.incomeSources,
@@ -1235,12 +1286,12 @@ const LinkedText = ({ text }) => {
     parts.map((part, index) => (
       urlOnlyRegex.test(part)
         ? h('a', {
-            key: index,
-            href: part,
-            target: '_blank',
-            rel: 'noopener noreferrer',
-            className: 'break-all text-tide-700 underline decoration-tide-300 underline-offset-4 hover:text-tide-800'
-          }, part)
+          key: index,
+          href: part,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          className: 'break-all text-tide-700 underline decoration-tide-300 underline-offset-4 hover:text-tide-800'
+        }, part)
         : h('span', { key: index }, part)
     ))
   );
@@ -1821,15 +1872,15 @@ const ResultsScreen = ({
           h('ul', { className: 'mt-4 space-y-3' },
             requiredForms.length > 0
               ? requiredForms.map((form) => h('li', {
-                  key: form.formId,
-                  className: 'rounded-2xl border border-slate-200 bg-slate-50 p-4'
-                },
-                  h('p', { className: 'font-semibold text-slate-900' }, `${form.formId}: ${form.formTitle}`),
-                  h('p', { className: 'mt-2 text-sm text-slate-600' }, h('strong', null, `${t.why} `), form.reason)
-                ))
+                key: form.formId,
+                className: 'rounded-2xl border border-slate-200 bg-slate-50 p-4'
+              },
+                h('p', { className: 'font-semibold text-slate-900' }, `${form.formId}: ${form.formTitle}`),
+                h('p', { className: 'mt-2 text-sm text-slate-600' }, h('strong', null, `${t.why} `), form.reason)
+              ))
               : h('li', { className: 'rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' },
-                  'Based on your answers, it looks like you may not need to file. You can still verify details with the assistant.'
-                )
+                'Based on your answers, it looks like you may not need to file. You can still verify details with the assistant.'
+              )
           )
         ),
         h('div', { className: APP_STYLES.section },
@@ -1846,34 +1897,34 @@ const ResultsScreen = ({
           h('div', { className: 'mt-4 space-y-3' },
             nextSteps.length > 0
               ? nextSteps.map((step, index) => h('div', {
-                  key: `${step.stepTitle}-${index}`,
-                  className: cn(
-                    'rounded-2xl border border-slate-200 bg-white p-4 transition',
-                    stepChecklist[index] ? 'border-tide-300 bg-tide-50/30' : 'hover:border-tide-300'
-                  )
-                },
-                  h('div', { className: 'flex items-start gap-3' },
-                    h('input', {
-                      type: 'checkbox',
-                      checked: Boolean(stepChecklist[index]),
-                      onChange: () => toggleStepComplete(index),
-                      className: 'mt-1 h-4 w-4 rounded accent-tide-700'
-                    }),
-                    h('div', { className: 'min-w-0 flex-1' },
-                      h('p', { className: 'text-sm font-medium text-slate-800 sm:text-base' }, `${index + 1}. ${step.stepTitle}`),
-                      h('div', { className: 'mt-2 flex gap-2' },
-                        h('button', {
-                          type: 'button',
-                          onClick: () => onShowStepDetail(step),
-                          className: 'rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:border-slate-300'
-                        }, 'View details')
-                      )
+                key: `${step.stepTitle}-${index}`,
+                className: cn(
+                  'rounded-2xl border border-slate-200 bg-white p-4 transition',
+                  stepChecklist[index] ? 'border-tide-300 bg-tide-50/30' : 'hover:border-tide-300'
+                )
+              },
+                h('div', { className: 'flex items-start gap-3' },
+                  h('input', {
+                    type: 'checkbox',
+                    checked: Boolean(stepChecklist[index]),
+                    onChange: () => toggleStepComplete(index),
+                    className: 'mt-1 h-4 w-4 rounded accent-tide-700'
+                  }),
+                  h('div', { className: 'min-w-0 flex-1' },
+                    h('p', { className: 'text-sm font-medium text-slate-800 sm:text-base' }, `${index + 1}. ${step.stepTitle}`),
+                    h('div', { className: 'mt-2 flex gap-2' },
+                      h('button', {
+                        type: 'button',
+                        onClick: () => onShowStepDetail(step),
+                        className: 'rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:border-slate-300'
+                      }, 'View details')
                     )
                   )
-                ))
-              : h('p', { className: 'rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' },
-                  'No additional steps were returned. You can start a new plan for more context.'
                 )
+              ))
+              : h('p', { className: 'rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' },
+                'No additional steps were returned. You can start a new plan for more context.'
+              )
           )
         )
       ),
@@ -1891,14 +1942,14 @@ const ResultsScreen = ({
           h('h3', { className: 'text-xl font-semibold text-slate-900' }, 'Potential Watch-outs'),
           riskAlerts.length > 0
             ? h('ul', { className: 'mt-4 space-y-2' },
-                riskAlerts.map((item, index) => h('li', {
-                  key: `${item}-${index}`,
-                  className: 'rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900'
-                }, item))
-              )
+              riskAlerts.map((item, index) => h('li', {
+                key: `${item}-${index}`,
+                className: 'rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900'
+              }, item))
+            )
             : h('p', { className: 'mt-4 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600' },
-                'No risk alerts were returned for this plan.'
-              )
+              'No risk alerts were returned for this plan.'
+            )
         )
       ),
       h('div', { className: APP_STYLES.section },
@@ -1906,19 +1957,19 @@ const ResultsScreen = ({
         h('p', { className: 'mt-2 text-sm text-slate-600 sm:text-base' }, t.filingCenterDesc),
         requiredForms.length > 0
           ? h('div', { className: 'mt-5 grid gap-3 md:grid-cols-2' },
-              requiredForms.map((form) => h('button', {
-                key: form.formId,
-                onClick: () => onStartFiling(form),
-                className: cn(
-                  'rounded-2xl border border-slate-200 bg-white p-5 text-left transition-all',
-                  'hover:-translate-y-0.5 hover:border-tide-300 hover:bg-tide-50/30 focus:outline-none focus:ring-4 focus:ring-tide-100'
-                )
-              },
-                h('p', { className: 'text-xl font-semibold text-slate-900' }, form.formId),
-                h('p', { className: 'mt-1 text-sm text-slate-600' }, form.formTitle),
-                h('p', { className: 'mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-tide-700' }, 'Open assistant →')
-              ))
-            )
+            requiredForms.map((form) => h('button', {
+              key: form.formId,
+              onClick: () => onStartFiling(form),
+              className: cn(
+                'rounded-2xl border border-slate-200 bg-white p-5 text-left transition-all',
+                'hover:-translate-y-0.5 hover:border-tide-300 hover:bg-tide-50/30 focus:outline-none focus:ring-4 focus:ring-tide-100'
+              )
+            },
+              h('p', { className: 'text-xl font-semibold text-slate-900' }, form.formId),
+              h('p', { className: 'mt-1 text-sm text-slate-600' }, form.formTitle),
+              h('p', { className: 'mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-tide-700' }, 'Open assistant →')
+            ))
+          )
           : h('p', { className: 'mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' }, t.noForms)
       ),
       h('div', { className: APP_STYLES.section },
@@ -1928,34 +1979,34 @@ const ResultsScreen = ({
         ),
         historyItems.length > 0
           ? h('div', { className: 'mt-4 space-y-3' },
-              historyItems.map((planItem) => h('div', {
-                key: planItem.id,
-                className: cn(
-                  'flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-3',
-                  planItem.id === currentPlanId ? 'border-tide-300 bg-tide-50/30' : 'border-slate-200 bg-white'
-                )
-              },
-                h('div', null,
-                  h('p', { className: 'text-sm font-semibold text-slate-900' }, `Plan ${planItem.id.slice(0, 8)}`),
-                  h('p', { className: 'text-xs text-slate-500' }, `${formatDateTime(planItem.createdAt)} • ${(planItem.response?.requiredForms || []).length} forms`)
-                ),
-                h('div', { className: 'flex gap-2' },
-                  h('button', {
-                    type: 'button',
-                    onClick: () => onLoadHistoryPlan(planItem.id),
-                    className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
-                  }, 'Open'),
-                  h('button', {
-                    type: 'button',
-                    onClick: () => onDeleteHistoryPlan(planItem.id),
-                    className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
-                  }, 'Delete')
-                )
-              ))
-            )
+            historyItems.map((planItem) => h('div', {
+              key: planItem.id,
+              className: cn(
+                'flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-3',
+                planItem.id === currentPlanId ? 'border-tide-300 bg-tide-50/30' : 'border-slate-200 bg-white'
+              )
+            },
+              h('div', null,
+                h('p', { className: 'text-sm font-semibold text-slate-900' }, `Plan ${planItem.id.slice(0, 8)}`),
+                h('p', { className: 'text-xs text-slate-500' }, `${formatDateTime(planItem.createdAt)} • ${(planItem.response?.requiredForms || []).length} forms`)
+              ),
+              h('div', { className: 'flex gap-2' },
+                h('button', {
+                  type: 'button',
+                  onClick: () => onLoadHistoryPlan(planItem.id),
+                  className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
+                }, 'Open'),
+                h('button', {
+                  type: 'button',
+                  onClick: () => onDeleteHistoryPlan(planItem.id),
+                  className: 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300'
+                }, 'Delete')
+              )
+            ))
+          )
           : h('p', { className: 'mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600' },
-              'No saved plans yet. Generate your first plan and it will appear here.'
-            )
+            'No saved plans yet. Generate your first plan and it will appear here.'
+          )
       ),
       h('div', { className: 'text-center' },
         h('button', {
@@ -2035,6 +2086,10 @@ ${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].include
 - Itemized Deductions Last Year: ${getPromptValue(data.itemizedPreviousYear, PROMPT_LABELS.itemizedPreviousYear)}
 - Housing Status: ${getPromptValue(data.housingStatus, PROMPT_LABELS.housingStatus)}
 - Owns a car: ${getPromptValue(data.ownsCar, PROMPT_LABELS.yesNo)}
+- Transact in Crypto: ${getPromptValue(data.hasCrypto, PROMPT_LABELS.yesNo)}
+- Contributed to Retirement: ${getPromptValue(data.hasRetirement, PROMPT_LABELS.yesNo)}
+- ACA Marketplace Health Insurance: ${getPromptValue(data.hasMarketplaceHealth, PROMPT_LABELS.yesNo)}
+- Paid Student Loans/Tuition: ${getPromptValue(data.hasStudentLoans, PROMPT_LABELS.yesNo)}
 - Income Sources: ${incomeSources || 'None listed'}
 - Other details: ${data.specifics || 'None'}`;
 
