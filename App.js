@@ -479,7 +479,9 @@ const STORAGE_KEYS = {
   language: 'taxpal.language.v1',
   formDraft: 'taxpal.formDraft.v1',
   planHistory: 'taxpal.planHistory.v1',
-  checklistPrefix: 'taxpal.checklist.v1'
+  checklistPrefix: 'taxpal.checklist.v1',
+  documentHubPrefix: 'taxpal.documents.v1',
+  formProgressPrefix: 'taxpal.forms.v1'
 };
 
 const MAX_PLAN_HISTORY = 8;
@@ -619,6 +621,127 @@ const formatDateTime = (isoString) => {
 };
 
 const getChecklistStorageKey = (planId) => `${STORAGE_KEYS.checklistPrefix}.${planId}`;
+const getDocumentHubStorageKey = (planId) => `${STORAGE_KEYS.documentHubPrefix}.${planId}`;
+const getFormProgressStorageKey = (planId) => `${STORAGE_KEYS.formProgressPrefix}.${planId}`;
+
+const getIncomeRangeUpperBound = (incomeRange) => {
+  if (!incomeRange) {
+    return null;
+  }
+  if (incomeRange === 'Under $12,000') {
+    return 12000;
+  }
+  if (incomeRange === '$12,000 - $24,999') {
+    return 24999;
+  }
+  if (incomeRange === '$25,000 - $49,999') {
+    return 49999;
+  }
+  if (incomeRange === '$50,000 - $99,999') {
+    return 99999;
+  }
+  if (incomeRange === '$100,000 - $200,000') {
+    return 200000;
+  }
+  if (incomeRange === 'Over $200,000') {
+    return 300000;
+  }
+  return null;
+};
+
+const getComplexityLabel = (score) => {
+  if (score <= 2) {
+    return 'Low';
+  }
+  if (score <= 5) {
+    return 'Medium';
+  }
+  return 'High';
+};
+
+const buildBestFilingPathEngine = (sourceFormData, requiredForms = []) => {
+  const data = sourceFormData || {};
+  const incomeSources = Array.isArray(data.incomeSources) ? data.incomeSources : [];
+  const nationality = String(data.nationality || '').trim().toLowerCase();
+  const isLikelyNonUs = nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].includes(nationality);
+  const incomeUpperBound = getIncomeRangeUpperBound(data.incomeRange);
+  const dependents = Number.parseInt(String(data.dependents || '0'), 10) || 0;
+  const hasComplexIncome = ['selfEmployment', 'rentalIncome', 'cryptocurrency'].some((key) => incomeSources.includes(key));
+
+  let complexityScore = 0;
+  if (isLikelyNonUs) complexityScore += 2;
+  if (incomeSources.includes('selfEmployment')) complexityScore += 2;
+  if (incomeSources.includes('rentalIncome')) complexityScore += 2;
+  if (incomeSources.includes('cryptocurrency')) complexityScore += 2;
+  if (incomeSources.includes('stockInvestments')) complexityScore += 1;
+  if (data.itemizedPreviousYear === 'yes') complexityScore += 1;
+  if (dependents > 0) complexityScore += 1;
+  if ((requiredForms || []).length >= 4) complexityScore += 1;
+  if (data.hasMarketplaceHealth === 'yes' || data.hasRetirement === 'yes' || data.hasStudentLoans === 'yes') complexityScore += 1;
+
+  const complexity = getComplexityLabel(complexityScore);
+  const likelyDirectFileEligible = !isLikelyNonUs && !hasComplexIncome && (incomeUpperBound !== null && incomeUpperBound <= 200000);
+  const likelyFreeFileEligible = !isLikelyNonUs && (incomeUpperBound !== null && incomeUpperBound <= 89000);
+
+  const pathOptions = [
+    {
+      id: 'irs-direct-file',
+      name: 'IRS Direct File',
+      availability: likelyDirectFileEligible ? 'Likely eligible (confirm IRS rules)' : 'Check eligibility',
+      estimatedTotalCost: '$0',
+      complexity: 'Low-Medium',
+      recommended: false,
+      reason: likelyDirectFileEligible
+        ? 'Good for simpler tax situations with straightforward income and lower error risk.'
+        : 'Direct File has narrower eligibility; verify state and income-type support first.'
+    },
+    {
+      id: 'irs-free-file',
+      name: 'IRS Free File Partners',
+      availability: likelyFreeFileEligible ? 'Likely eligible' : 'Possibly not eligible',
+      estimatedTotalCost: '$0 federal; state may vary',
+      complexity: 'Low-Medium',
+      recommended: false,
+      reason: likelyFreeFileEligible
+        ? 'Best zero-cost path for many eligible users with straightforward filing.'
+        : 'Income and profile may exceed typical Free File criteria.'
+    },
+    {
+      id: 'software-diy',
+      name: 'DIY Tax Software',
+      availability: 'Available',
+      estimatedTotalCost: complexity === 'High' ? '$0-$120 (depends on forms/states)' : '$0-$50',
+      complexity: 'Medium-High',
+      recommended: false,
+      reason: 'Flexible and fast if you can review details yourself and follow a checklist.'
+    },
+    {
+      id: 'tax-pro-assisted',
+      name: 'Tax Pro Assisted Filing',
+      availability: 'Available',
+      estimatedTotalCost: '$120-$500+',
+      complexity: 'High',
+      recommended: false,
+      reason: 'Best when profile is complex (nonresident, self-employment, rental, or multiple edge cases).'
+    }
+  ];
+
+  let recommendedId = 'software-diy';
+  if (complexity === 'High' || isLikelyNonUs) {
+    recommendedId = 'tax-pro-assisted';
+  } else if (likelyDirectFileEligible) {
+    recommendedId = 'irs-direct-file';
+  } else if (likelyFreeFileEligible) {
+    recommendedId = 'irs-free-file';
+  }
+
+  return {
+    complexity,
+    complexityScore,
+    recommendedId,
+    options: pathOptions.map((item) => ({ ...item, recommended: item.id === recommendedId }))
+  };
+};
 
 const deriveDocumentChecklist = (sourceFormData, requiredForms) => {
   const docs = new Set([
@@ -1896,6 +2019,8 @@ const ResultsScreen = ({
   t
 }) => {
   const [stepChecklist, setStepChecklist] = useState({});
+  const [formCompletion, setFormCompletion] = useState({});
+  const [documentStatus, setDocumentStatus] = useState({});
   const [exportStatus, setExportStatus] = useState('');
 
   const disclaimer = response?.disclaimer || t.disclaimerText;
@@ -1909,13 +2034,28 @@ const ResultsScreen = ({
   const riskAlerts = Array.isArray(response?.riskAlerts) ? response.riskAlerts : [];
   const completedStepCount = nextSteps.filter((_, index) => Boolean(stepChecklist[index])).length;
   const historyItems = Array.isArray(planHistory) ? planHistory.filter((item) => item && item.id) : [];
+  const bestFilingPath = buildBestFilingPathEngine(sourceFormData, requiredForms);
+  const completedFormsCount = requiredForms.filter((form) => Boolean(formCompletion[form.formId])).length;
+  const formsProgressPercent = requiredForms.length > 0 ? Math.round((completedFormsCount / requiredForms.length) * 100) : 0;
+
+  const documentMetrics = requiredDocuments.reduce((acc, doc) => {
+    const status = documentStatus[doc] || 'missing';
+    if (status === 'verified') acc.verified += 1;
+    else if (status === 'uploaded') acc.uploaded += 1;
+    else acc.missing += 1;
+    return acc;
+  }, { missing: 0, uploaded: 0, verified: 0 });
 
   useEffect(() => {
     if (!currentPlanId) {
       setStepChecklist({});
+      setFormCompletion({});
+      setDocumentStatus({});
       return;
     }
     setStepChecklist(safeStorageGet(getChecklistStorageKey(currentPlanId), {}));
+    setFormCompletion(safeStorageGet(getFormProgressStorageKey(currentPlanId), {}));
+    setDocumentStatus(safeStorageGet(getDocumentHubStorageKey(currentPlanId), {}));
   }, [currentPlanId]);
 
   useEffect(() => {
@@ -1925,8 +2065,30 @@ const ResultsScreen = ({
     safeStorageSet(getChecklistStorageKey(currentPlanId), stepChecklist);
   }, [currentPlanId, stepChecklist]);
 
+  useEffect(() => {
+    if (!currentPlanId) {
+      return;
+    }
+    safeStorageSet(getFormProgressStorageKey(currentPlanId), formCompletion);
+  }, [currentPlanId, formCompletion]);
+
+  useEffect(() => {
+    if (!currentPlanId) {
+      return;
+    }
+    safeStorageSet(getDocumentHubStorageKey(currentPlanId), documentStatus);
+  }, [currentPlanId, documentStatus]);
+
   const toggleStepComplete = (index) => {
     setStepChecklist((prev) => ({ ...prev, [index]: !prev[index] }));
+  };
+
+  const toggleFormComplete = (formId) => {
+    setFormCompletion((prev) => ({ ...prev, [formId]: !prev[formId] }));
+  };
+
+  const updateDocumentStatus = (docName, status) => {
+    setDocumentStatus((prev) => ({ ...prev, [docName]: status }));
   };
 
   const handleCopyPlan = async () => {
@@ -2025,6 +2187,37 @@ const ResultsScreen = ({
           h('p', { className: 'mt-2 text-sm leading-relaxed text-slate-600 sm:text-base' }, analysisSummary)
         )
       ),
+      h('div', { className: APP_STYLES.section },
+        h('div', { className: 'flex flex-wrap items-center justify-between gap-3' },
+          h('h3', { className: 'text-2xl font-semibold text-slate-900' }, 'Best Filing Path'),
+          h('span', { className: 'rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600' },
+            `Complexity: ${bestFilingPath.complexity}`
+          )
+        ),
+        h('p', { className: 'mt-2 text-sm text-slate-600' },
+          'Available channels, estimated cost, and the most practical recommendation for your current profile.'
+        ),
+        h('div', { className: 'mt-4 grid gap-3 md:grid-cols-2' },
+          bestFilingPath.options.map((option) => h('div', {
+            key: option.id,
+            className: cn(
+              'rounded-2xl border p-4',
+              option.recommended ? 'border-tide-300 bg-tide-50/40' : 'border-slate-200 bg-white'
+            )
+          },
+            h('div', { className: 'flex items-start justify-between gap-3' },
+              h('p', { className: 'text-sm font-semibold text-slate-900 sm:text-base' }, option.name),
+              option.recommended && h('span', { className: 'rounded-full bg-tide-700 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-white' }, 'Recommended')
+            ),
+            h('div', { className: 'mt-3 space-y-1.5 text-xs text-slate-600' },
+              h('p', null, h('strong', { className: 'text-slate-700' }, 'Availability: '), option.availability),
+              h('p', null, h('strong', { className: 'text-slate-700' }, 'Estimated cost: '), option.estimatedTotalCost),
+              h('p', null, h('strong', { className: 'text-slate-700' }, 'Best for: '), option.complexity)
+            ),
+            h('p', { className: 'mt-3 text-sm text-slate-600' }, option.reason)
+          ))
+        )
+      ),
       h('div', { className: 'grid gap-6 lg:grid-cols-2' },
         h('div', { className: APP_STYLES.section },
           h('h3', { className: 'text-xl font-semibold text-slate-900' }, t.requiredForms),
@@ -2089,12 +2282,72 @@ const ResultsScreen = ({
       ),
       h('div', { className: 'grid gap-6 lg:grid-cols-2' },
         h('div', { className: APP_STYLES.section },
-          h('h3', { className: 'text-xl font-semibold text-slate-900' }, t.documentChecklist),
-          h('ul', { className: 'mt-4 space-y-2' },
-            requiredDocuments.map((item, index) => h('li', {
-              key: `${item}-${index}`,
-              className: 'rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700'
-            }, item))
+          h('h3', { className: 'text-xl font-semibold text-slate-900' }, 'Document Readiness Hub'),
+          h('p', { className: 'mt-2 text-sm text-slate-600' },
+            'Track required forms and supporting documents before filing to reduce rework.'
+          ),
+          h('div', { className: 'mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4' },
+            h('div', { className: 'flex items-center justify-between gap-3' },
+              h('p', { className: 'text-sm font-semibold text-slate-800' }, 'Form completion progress'),
+              h('span', { className: 'text-xs font-semibold text-slate-600' }, `${completedFormsCount}/${requiredForms.length || 0}`)
+            ),
+            h('div', { className: 'mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200' },
+              h('div', {
+                className: 'h-full rounded-full bg-tide-600 transition-all duration-300',
+                style: { width: `${formsProgressPercent}%` }
+              })
+            ),
+            h('p', { className: 'mt-2 text-xs text-slate-500' }, `${formsProgressPercent}% ready`)
+          ),
+          h('div', { className: 'mt-4 space-y-2' },
+            requiredForms.length > 0
+              ? requiredForms.map((form) => h('label', {
+                key: `ready-${form.formId}`,
+                className: cn(
+                  'flex items-start gap-3 rounded-xl border p-3',
+                  formCompletion[form.formId] ? 'border-tide-300 bg-tide-50/30' : 'border-slate-200 bg-white'
+                )
+              },
+                h('input', {
+                  type: 'checkbox',
+                  checked: Boolean(formCompletion[form.formId]),
+                  onChange: () => toggleFormComplete(form.formId),
+                  className: 'mt-1 h-4 w-4 rounded accent-tide-700'
+                }),
+                h('div', null,
+                  h('p', { className: 'text-sm font-semibold text-slate-900' }, `${form.formId} · ${form.formTitle}`),
+                  h('p', { className: 'text-xs text-slate-500' }, formCompletion[form.formId] ? 'Marked as finished' : 'Pending')
+                )
+              ))
+              : h('p', { className: 'rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600' }, t.noForms)
+          ),
+          h('div', { className: 'mt-6' },
+            h('p', { className: 'text-sm font-semibold text-slate-800' }, 'Supporting documents'),
+            h('div', { className: 'mt-2 flex flex-wrap gap-2 text-xs' },
+              h('span', { className: 'rounded-full border border-slate-200 bg-white px-2.5 py-1 text-slate-600' }, `Missing: ${documentMetrics.missing}`),
+              h('span', { className: 'rounded-full border border-slate-200 bg-white px-2.5 py-1 text-slate-600' }, `Uploaded: ${documentMetrics.uploaded}`),
+              h('span', { className: 'rounded-full border border-slate-200 bg-white px-2.5 py-1 text-slate-600' }, `Verified: ${documentMetrics.verified}`)
+            ),
+            h('div', { className: 'mt-3 space-y-2' },
+              requiredDocuments.map((item, index) => {
+                const status = documentStatus[item] || 'missing';
+                return h('div', {
+                  key: `${item}-${index}`,
+                  className: 'flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2'
+                },
+                  h('p', { className: 'text-sm text-slate-700' }, item),
+                  h('select', {
+                    value: status,
+                    onChange: (e) => updateDocumentStatus(item, e.target.value),
+                    className: 'rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 focus:border-tide-600 focus:outline-none'
+                  },
+                    h('option', { value: 'missing' }, 'Missing'),
+                    h('option', { value: 'uploaded' }, 'Uploaded'),
+                    h('option', { value: 'verified' }, 'Verified')
+                  )
+                );
+              })
+            )
           )
         ),
         h('div', { className: APP_STYLES.section },
@@ -2350,6 +2603,8 @@ ${data.nationality && !['usa', 'us', 'u.s.', 'united states', 'america'].include
     const updated = planHistory.filter((item) => item.id !== planId);
     setPlanHistory(updated);
     safeStorageRemove(getChecklistStorageKey(planId));
+    safeStorageRemove(getDocumentHubStorageKey(planId));
+    safeStorageRemove(getFormProgressStorageKey(planId));
 
     if (currentPlanId === planId) {
       const fallback = updated[0] || null;
